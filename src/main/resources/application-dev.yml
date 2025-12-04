@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/qiromanager?useSSL=false&serverTimezone=UTC
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # you can switch to validate later
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+  jackson:
+    serialization:
+      indent_output: true
+
+server:
+  port: 8080
+
+# JWT (values will be used in Milestone 1)
+jwt:
+  secret: ${JWT_SECRET:temporary-dev-secret}
+  expiration: ${JWT_EXPIRATION:3600000} # 1 hour
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG

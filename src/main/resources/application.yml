@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: qiromanager-backend
+
+  profiles:
+    active: dev
