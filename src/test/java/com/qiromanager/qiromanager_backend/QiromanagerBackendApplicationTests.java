@@ -1,0 +1,13 @@
+package com.qiromanager.qiromanager_backend;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class QiromanagerBackendApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
