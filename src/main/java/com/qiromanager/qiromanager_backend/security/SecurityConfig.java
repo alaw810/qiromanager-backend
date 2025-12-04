@@ -9,13 +9,21 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    private static final String[] OPEN_API_WHITELIST = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/api-docs/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Allow all requests during setup phase
+                        .requestMatchers(OPEN_API_WHITELIST).permitAll()
+                        .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults());
 
