@@ -7,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # you can switch to validate later
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate.format_sql: true
@@ -19,10 +19,10 @@ spring:
 server:
   port: 8080
 
-# JWT (values will be used in Milestone 1)
-jwt:
-  secret: ${JWT_SECRET:temporary-dev-secret}
-  expiration: ${JWT_EXPIRATION:3600000} # 1 hour
+app:
+  jwt:
+    secret: ${JWT_SECRET:qiro-manager-temporary-dev-secret-key-must-be-32-bytes}
+    expiration-millis: ${JWT_EXPIRATION:3600000}
 
 logging:
   level:
