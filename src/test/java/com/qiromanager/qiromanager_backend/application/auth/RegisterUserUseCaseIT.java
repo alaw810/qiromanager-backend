@@ -1,6 +1,8 @@
 package com.qiromanager.qiromanager_backend.application.auth;
 
+import com.qiromanager.qiromanager_backend.api.auth.AuthResponse;
 import com.qiromanager.qiromanager_backend.api.auth.RegisterRequest;
+import com.qiromanager.qiromanager_backend.domain.exception.UserAlreadyExistsException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,11 +10,13 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Transactional
 class RegisterUserUseCaseIT {
 
@@ -35,15 +39,17 @@ class RegisterUserUseCaseIT {
 
     @Test
     void registerUser_successfully() {
-        RegisteredUser result = registerUserUseCase.execute(request);
+        AuthResponse result = registerUserUseCase.execute(request);
 
         assertThat(result.getId()).isNotNull();
         assertThat(result.getUsername()).isEqualTo("johndoe");
         assertThat(result.getRole()).isEqualTo("USER");
+        assertThat(result.getToken()).isNotBlank();
 
         User persisted = userRepository.findById(result.getId()).orElseThrow();
         assertThat(persisted.getUsername()).isEqualTo("johndoe");
         assertThat(persisted.getEmail()).isEqualTo("john@example.com");
+
         assertThat(persisted.getPassword()).isNotEqualTo("123456");
     }
 
@@ -58,8 +64,8 @@ class RegisterUserUseCaseIT {
         duplicate.setPassword("123456");
 
         assertThatThrownBy(() -> registerUserUseCase.execute(duplicate))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Email already exists");
+                .isInstanceOf(UserAlreadyExistsException.class)
+                .hasMessage("Email already registered");
     }
 
     @Test
@@ -73,7 +79,7 @@ class RegisterUserUseCaseIT {
         duplicate.setPassword("123456");
 
         assertThatThrownBy(() -> registerUserUseCase.execute(duplicate))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(UserAlreadyExistsException.class)
                 .hasMessage("Username already exists");
     }
 }
