@@ -1,31 +1,30 @@
 package com.qiromanager.qiromanager_backend.api.auth;
 
+import com.qiromanager.qiromanager_backend.application.auth.LoginUserUseCase;
 import com.qiromanager.qiromanager_backend.application.auth.RegisterUserUseCase;
-import com.qiromanager.qiromanager_backend.application.auth.RegisteredUser;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final RegisterUserUseCase registerUserUseCase;
-
-    public AuthController(RegisterUserUseCase registerUserUseCase) {
-        this.registerUserUseCase = registerUserUseCase;
-    }
+    private final LoginUserUseCase loginUserUseCase;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        RegisteredUser registered = registerUserUseCase.execute(request);
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = registerUserUseCase.execute(request);
+        return ResponseEntity.ok(response);
+    }
 
-        AuthResponse response = AuthResponse.builder()
-                .id(registered.getId())
-                .username(registered.getUsername())
-                .role(registered.getRole())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = loginUserUseCase.execute(request);
+        return ResponseEntity.ok(response);
     }
 }
