@@ -2,7 +2,7 @@ package com.qiromanager.qiromanager_backend.application.auth;
 
 import com.qiromanager.qiromanager_backend.api.auth.AuthResponse;
 import com.qiromanager.qiromanager_backend.api.auth.RegisterRequest;
-import com.qiromanager.qiromanager_backend.domain.exception.UserAlreadyExistsException;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserAlreadyExistsException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

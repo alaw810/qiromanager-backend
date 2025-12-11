@@ -2,6 +2,8 @@ package com.qiromanager.qiromanager_backend.application.auth;
 
 import com.qiromanager.qiromanager_backend.api.auth.AuthResponse;
 import com.qiromanager.qiromanager_backend.api.auth.LoginRequest;
+import com.qiromanager.qiromanager_backend.domain.exceptions.InvalidCredentialsException;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserInactiveException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import com.qiromanager.qiromanager_backend.security.jwt.JwtUtil;
@@ -29,17 +31,17 @@ public class LoginUserUseCase {
 
         if (user == null) {
             log.warn("Authentication failed for username: {}", request.getUsername());
-            throw new BadCredentialsException("Invalid credentials");
+            throw new InvalidCredentialsException();
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Authentication failed for username: {}", request.getUsername());
-            throw new BadCredentialsException("Invalid credentials");
+            throw new InvalidCredentialsException();
         }
 
         if (!user.isActive()) {
             log.warn("Login attempt on disabled account: {}", request.getUsername());
-            throw new DisabledException("User account is disabled");
+            throw new UserInactiveException();
         }
 
         String token = jwtUtil.generateToken(user);
