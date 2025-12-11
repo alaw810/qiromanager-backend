@@ -1,5 +1,6 @@
 package com.qiromanager.qiromanager_backend.api.users;
 
+import com.qiromanager.qiromanager_backend.application.users.GetUserByIdUseCase;
 import com.qiromanager.qiromanager_backend.application.users.ListUsersUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,18 @@ import java.util.List;
 public class UserController {
 
     private final ListUsersUseCase listUsersUseCase;
+    private final GetUserByIdUseCase getUserByIdUseCase;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(listUsersUseCase.execute());
     }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(getUserByIdUseCase.execute(id));
+    }
+
 }
