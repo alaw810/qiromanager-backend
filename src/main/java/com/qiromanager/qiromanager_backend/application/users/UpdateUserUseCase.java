@@ -2,7 +2,7 @@ package com.qiromanager.qiromanager_backend.application.users;
 
 import com.qiromanager.qiromanager_backend.api.users.UpdateUserRequest;
 import com.qiromanager.qiromanager_backend.api.users.UserResponse;
-import com.qiromanager.qiromanager_backend.domain.exception.UserAlreadyExistsException;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserAlreadyExistsException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;

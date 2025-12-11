@@ -1,5 +1,7 @@
 package com.qiromanager.qiromanager_backend.security.jwt;
 
+import com.qiromanager.qiromanager_backend.domain.exceptions.InvalidCredentialsException;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserInactiveException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import io.jsonwebtoken.JwtException;
@@ -36,41 +38,58 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        final String jwt = authHeader.substring(7);
+
         try {
-            jwt = authHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
+            final String username = jwtUtil.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                User user = userRepository.findByUsername(username).orElse(null);
+                User user = userRepository.findByUsername(username)
+                        .orElseThrow(InvalidCredentialsException::new);
 
-                if (user != null && jwtUtil.isTokenValid(jwt, user)) {
+                if (!user.isActive()) {
+                    throw new UserInactiveException();
+                }
 
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            user,
-                            null,
-                            user.getRole().getAuthorities()
-                    );
+                if (jwtUtil.isTokenValid(jwt, user)) {
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    user.getUsername(),
+                                    null,
+                                    user.getRole().getAuthorities()
+                            );
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
                     logger.debug("User authenticated successfully: {}", username);
+                } else {
+                    throw new JwtException("Token validation failed");
                 }
             }
+
         } catch (JwtException e) {
             logger.warn("Invalid or expired JWT token: {}", e.getMessage());
+            response.setStatus(401);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+            return;
+
         } catch (Exception e) {
             logger.error("Unexpected error during JWT authentication", e);
+            response.setStatus(500);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Internal authentication error\"}");
+            return;
         }
 
         filterChain.doFilter(request, response);
