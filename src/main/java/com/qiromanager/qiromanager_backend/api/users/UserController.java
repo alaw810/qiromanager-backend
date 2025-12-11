@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.api.users;
 
 import com.qiromanager.qiromanager_backend.application.users.GetUserByIdUseCase;
 import com.qiromanager.qiromanager_backend.application.users.ListUsersUseCase;
+import com.qiromanager.qiromanager_backend.application.users.UpdateUserStatusUseCase;
 import com.qiromanager.qiromanager_backend.application.users.UpdateUserUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class UserController {
     private final ListUsersUseCase listUsersUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final UpdateUserStatusUseCase updateUserStatusUseCase;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -41,5 +43,13 @@ public class UserController {
         return ResponseEntity.ok(updateUserUseCase.execute(id, request));
     }
 
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> updateUserStatus(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateUserStatusRequest request
+    ) {
+        return ResponseEntity.ok(updateUserStatusUseCase.execute(id, request));
+    }
 
 }
