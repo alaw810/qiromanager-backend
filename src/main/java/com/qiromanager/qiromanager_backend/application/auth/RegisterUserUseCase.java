@@ -27,11 +27,11 @@ public class RegisterUserUseCase {
     public AuthResponse execute(RegisterRequest request) {
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new UserAlreadyExistsException("Username already exists");
+            throw new UserAlreadyExistsException("username");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException("Email already registered");
+            throw new UserAlreadyExistsException("email");
         }
 
         try {
