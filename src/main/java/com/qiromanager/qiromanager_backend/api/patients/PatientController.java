@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.api.patients;
 
 import com.qiromanager.qiromanager_backend.application.patients.CreatePatientUseCase;
 import com.qiromanager.qiromanager_backend.application.patients.ListPatientsUseCase;
+import com.qiromanager.qiromanager_backend.application.patients.UpdatePatientUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ public class PatientController {
 
     private final CreatePatientUseCase createPatientUseCase;
     private final ListPatientsUseCase listPatientsUseCase;
+    private final UpdatePatientUseCase updatePatientUseCase;
 
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
@@ -30,4 +32,14 @@ public class PatientController {
         List<PatientResponse> response = listPatientsUseCase.execute();
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientResponse> updatePatient(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePatientRequest request
+    ) {
+        PatientResponse response = updatePatientUseCase.execute(id, request);
+        return ResponseEntity.ok(response);
+    }
+
 }
