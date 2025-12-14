@@ -3,12 +3,11 @@ package com.qiromanager.qiromanager_backend.application.patients;
 import com.qiromanager.qiromanager_backend.api.patients.CreatePatientRequest;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
+import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.user.User;
-import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +18,12 @@ import java.util.List;
 public class CreatePatientUseCase {
 
     private final PatientRepository patientRepository;
-    private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Transactional
     public PatientResponse execute(CreatePatientRequest request) {
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User therapist = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+        User therapist = authenticatedUserService.getCurrentUser();
 
         Patient patient = Patient.builder()
                 .fullName(request.getFullName())
