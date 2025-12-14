@@ -56,7 +56,6 @@ public class Patient {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        if (!active) active = true;
     }
 
     @PreUpdate
