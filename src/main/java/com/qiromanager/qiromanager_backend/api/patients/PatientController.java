@@ -20,6 +20,7 @@ public class PatientController {
     private final UpdatePatientUseCase updatePatientUseCase;
     private final UpdatePatientStatusUseCase updatePatientStatusUseCase;
     private final SearchPatientsUseCase searchPatientsUseCase;
+    private final AssignPatientUseCase assignPatientUseCase;
 
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
@@ -63,4 +64,8 @@ public class PatientController {
         return ResponseEntity.ok(searchPatientsUseCase.execute(query));
     }
 
+    @PostMapping("/{id}/assign")
+    public ResponseEntity<PatientResponse> assignPatient(@PathVariable Long id) {
+        return ResponseEntity.ok(assignPatientUseCase.execute(id));
+    }
 }
