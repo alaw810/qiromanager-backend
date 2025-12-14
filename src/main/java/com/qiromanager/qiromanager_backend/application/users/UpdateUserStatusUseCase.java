@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.application.users;
 
 import com.qiromanager.qiromanager_backend.api.users.UpdateUserStatusRequest;
 import com.qiromanager.qiromanager_backend.api.users.UserResponse;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class UpdateUserStatusUseCase {
     public UserResponse execute(Long id, UpdateUserStatusRequest request) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         user.setActive(request.getActive());
 
