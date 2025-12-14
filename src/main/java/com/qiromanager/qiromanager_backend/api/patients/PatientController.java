@@ -2,10 +2,12 @@ package com.qiromanager.qiromanager_backend.api.patients;
 
 import com.qiromanager.qiromanager_backend.application.patients.CreatePatientUseCase;
 import com.qiromanager.qiromanager_backend.application.patients.ListPatientsUseCase;
+import com.qiromanager.qiromanager_backend.application.patients.UpdatePatientStatusUseCase;
 import com.qiromanager.qiromanager_backend.application.patients.UpdatePatientUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +20,7 @@ public class PatientController {
     private final CreatePatientUseCase createPatientUseCase;
     private final ListPatientsUseCase listPatientsUseCase;
     private final UpdatePatientUseCase updatePatientUseCase;
+    private final UpdatePatientStatusUseCase updatePatientStatusUseCase;
 
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
@@ -40,6 +43,15 @@ public class PatientController {
     ) {
         PatientResponse response = updatePatientUseCase.execute(id, request);
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PatientResponse> updatePatientStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdatePatientStatusRequest request
+    ) {
+        return ResponseEntity.ok(updatePatientStatusUseCase.execute(id, request));
     }
 
 }
