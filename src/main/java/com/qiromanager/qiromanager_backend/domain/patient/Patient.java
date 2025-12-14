@@ -44,6 +44,7 @@ public class Patient {
             joinColumns = @JoinColumn(name = "patient_id"),
             inverseJoinColumns = @JoinColumn(name = "therapist_id")
     )
+    @Builder.Default
     private Set<User> therapists = new HashSet<>();
 
     private LocalDateTime createdAt;
