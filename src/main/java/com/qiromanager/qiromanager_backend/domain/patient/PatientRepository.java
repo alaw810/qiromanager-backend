@@ -12,4 +12,7 @@ public interface PatientRepository {
     List<Patient> findAllActive();
 
     Patient save(Patient patient);
+
+    List<Patient> searchByFullName(String query);
+
 }

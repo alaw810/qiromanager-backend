@@ -19,6 +19,7 @@ public class PatientController {
     private final GetPatientByIdUseCase getPatientByIdUseCase;
     private final UpdatePatientUseCase updatePatientUseCase;
     private final UpdatePatientStatusUseCase updatePatientStatusUseCase;
+    private final SearchPatientsUseCase searchPatientsUseCase;
 
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
@@ -55,6 +56,11 @@ public class PatientController {
             @Valid @RequestBody UpdatePatientStatusRequest request
     ) {
         return ResponseEntity.ok(updatePatientStatusUseCase.execute(id, request));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PatientResponse>> searchPatients(@RequestParam String query) {
+        return ResponseEntity.ok(searchPatientsUseCase.execute(query));
     }
 
 }
