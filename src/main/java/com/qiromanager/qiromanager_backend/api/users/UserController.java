@@ -1,9 +1,6 @@
 package com.qiromanager.qiromanager_backend.api.users;
 
-import com.qiromanager.qiromanager_backend.application.users.GetUserByIdUseCase;
-import com.qiromanager.qiromanager_backend.application.users.ListUsersUseCase;
-import com.qiromanager.qiromanager_backend.application.users.UpdateUserStatusUseCase;
-import com.qiromanager.qiromanager_backend.application.users.UpdateUserUseCase;
+import com.qiromanager.qiromanager_backend.application.users.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +16,7 @@ public class UserController {
 
     private final ListUsersUseCase listUsersUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
+    private final GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final UpdateUserStatusUseCase updateUserStatusUseCase;
 
@@ -32,6 +30,11 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(getUserByIdUseCase.execute(id));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getAuthenticatedUser() {
+        return ResponseEntity.ok(getAuthenticatedUserUseCase.execute());
     }
 
     @PutMapping("/{id}")
