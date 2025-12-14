@@ -1,9 +1,6 @@
 package com.qiromanager.qiromanager_backend.api.patients;
 
-import com.qiromanager.qiromanager_backend.application.patients.CreatePatientUseCase;
-import com.qiromanager.qiromanager_backend.application.patients.ListPatientsUseCase;
-import com.qiromanager.qiromanager_backend.application.patients.UpdatePatientStatusUseCase;
-import com.qiromanager.qiromanager_backend.application.patients.UpdatePatientUseCase;
+import com.qiromanager.qiromanager_backend.application.patients.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +16,7 @@ public class PatientController {
 
     private final CreatePatientUseCase createPatientUseCase;
     private final ListPatientsUseCase listPatientsUseCase;
+    private final GetPatientByIdUseCase getPatientByIdUseCase;
     private final UpdatePatientUseCase updatePatientUseCase;
     private final UpdatePatientStatusUseCase updatePatientStatusUseCase;
 
@@ -34,6 +32,11 @@ public class PatientController {
     public ResponseEntity<List<PatientResponse>> getAllPatients() {
         List<PatientResponse> response = listPatientsUseCase.execute();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientResponse> getPatientById(@PathVariable Long id) {
+        return ResponseEntity.ok(getPatientByIdUseCase.execute(id));
     }
 
     @PutMapping("/{id}")
