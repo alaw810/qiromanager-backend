@@ -1,5 +1,6 @@
 package com.qiromanager.qiromanager_backend.application.patients;
 
+import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.CreatePatientRequest;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
@@ -47,18 +48,6 @@ public class CreatePatientUseCase {
                                 .build())
                         .toList();
 
-        return PatientResponse.builder()
-                .id(saved.getId())
-                .fullName(saved.getFullName())
-                .dateOfBirth(saved.getDateOfBirth())
-                .phone(saved.getPhone())
-                .email(saved.getEmail())
-                .address(saved.getAddress())
-                .generalNotes(saved.getGeneralNotes())
-                .active(saved.isActive())
-                .createdAt(saved.getCreatedAt())
-                .updatedAt(saved.getUpdatedAt())
-                .therapists(therapistSummaries)
-                .build();
+        return PatientMapper.toResponse(saved);
     }
 }

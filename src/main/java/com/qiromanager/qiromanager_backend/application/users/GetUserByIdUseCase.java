@@ -1,5 +1,6 @@
 package com.qiromanager.qiromanager_backend.application.users;
 
+import com.qiromanager.qiromanager_backend.api.mappers.UserMapper;
 import com.qiromanager.qiromanager_backend.api.users.UserResponse;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
@@ -17,13 +18,6 @@ public class GetUserByIdUseCase {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .role(user.getRole().name())
-                .active(user.isActive())
-                .build();
+        return UserMapper.toResponse(user);
     }
 }

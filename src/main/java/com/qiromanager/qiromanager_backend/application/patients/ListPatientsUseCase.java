@@ -1,7 +1,7 @@
 package com.qiromanager.qiromanager_backend.application.patients;
 
+import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
-import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
@@ -36,30 +36,7 @@ public class ListPatientsUseCase {
         }
 
         return patients.stream()
-                .map(patient -> {
-
-                    List<TherapistSummary> therapistSummaries =
-                            patient.getTherapists().stream()
-                                    .map(t -> TherapistSummary.builder()
-                                            .id(t.getId())
-                                            .fullName(t.getFullName())
-                                            .build())
-                                    .toList();
-
-                    return PatientResponse.builder()
-                            .id(patient.getId())
-                            .fullName(patient.getFullName())
-                            .dateOfBirth(patient.getDateOfBirth())
-                            .phone(patient.getPhone())
-                            .email(patient.getEmail())
-                            .address(patient.getAddress())
-                            .generalNotes(patient.getGeneralNotes())
-                            .active(patient.isActive())
-                            .createdAt(patient.getCreatedAt())
-                            .updatedAt(patient.getUpdatedAt())
-                            .therapists(therapistSummaries)
-                            .build();
-
-                }).toList();
+                .map(PatientMapper::toResponse)
+                .toList();
     }
 }

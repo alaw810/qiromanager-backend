@@ -1,5 +1,6 @@
 package com.qiromanager.qiromanager_backend.application.patients;
 
+import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.UpdatePatientStatusRequest;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
@@ -36,18 +37,6 @@ public class UpdatePatientStatusUseCase {
                                 .build())
                         .toList();
 
-        return PatientResponse.builder()
-                .id(updated.getId())
-                .fullName(updated.getFullName())
-                .dateOfBirth(updated.getDateOfBirth())
-                .phone(updated.getPhone())
-                .email(updated.getEmail())
-                .address(updated.getAddress())
-                .generalNotes(updated.getGeneralNotes())
-                .active(updated.isActive())
-                .createdAt(updated.getCreatedAt())
-                .updatedAt(updated.getUpdatedAt())
-                .therapists(therapistSummaries)
-                .build();
+        return PatientMapper.toResponse(updated);
     }
 }
