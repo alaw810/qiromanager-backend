@@ -36,4 +36,10 @@ public class PatientRepositoryImpl implements PatientRepository {
     public Patient save(Patient patient) {
         return jpaRepository.save(patient);
     }
+
+    @Override
+    public List<Patient> searchByFullName(String query) {
+        return jpaRepository.searchByFullName(query);
+    }
+
 }
