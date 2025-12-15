@@ -32,6 +32,7 @@ public class UserController {
         return ResponseEntity.ok(getUserByIdUseCase.execute(id));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getAuthenticatedUser() {
         return ResponseEntity.ok(getAuthenticatedUserUseCase.execute());

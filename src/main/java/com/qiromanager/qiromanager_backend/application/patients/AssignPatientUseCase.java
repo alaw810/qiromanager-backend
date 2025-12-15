@@ -1,10 +1,10 @@
 package com.qiromanager.qiromanager_backend.application.patients;
 
 import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
-import com.qiromanager.qiromanager_backend.api.patients.CreatePatientRequest;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
+import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.user.User;
@@ -16,38 +16,36 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CreatePatientUseCase {
+public class AssignPatientUseCase {
 
     private final PatientRepository patientRepository;
     private final AuthenticatedUserService authenticatedUserService;
 
     @Transactional
-    public PatientResponse execute(CreatePatientRequest request) {
+    public PatientResponse execute(Long patientId) {
 
-        User therapist = authenticatedUserService.getCurrentUser();
+        User currentUser = authenticatedUserService.getCurrentUser();
 
-        Patient patient = Patient.builder()
-                .fullName(request.getFullName())
-                .dateOfBirth(request.getDateOfBirth())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .address(request.getAddress())
-                .generalNotes(request.getGeneralNotes())
-                .active(true)
-                .build();
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new PatientNotFoundException(patientId));
 
-        patient.getTherapists().add(therapist);
+        boolean alreadyAssigned = patient.getTherapists().stream()
+                .anyMatch(t -> t.getId() != null && t.getId().equals(currentUser.getId()));
 
-        Patient saved = patientRepository.save(patient);
+        if (!alreadyAssigned) {
+            patient.getTherapists().add(currentUser);
+        }
+
+        Patient updated = patientRepository.save(patient);
 
         List<TherapistSummary> therapistSummaries =
-                saved.getTherapists().stream()
+                updated.getTherapists().stream()
                         .map(t -> TherapistSummary.builder()
                                 .id(t.getId())
                                 .fullName(t.getFullName())
                                 .build())
                         .toList();
 
-        return PatientMapper.toResponse(saved);
+        return PatientMapper.toResponse(updated);
     }
 }

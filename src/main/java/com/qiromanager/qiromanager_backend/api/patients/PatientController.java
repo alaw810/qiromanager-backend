@@ -20,37 +20,39 @@ public class PatientController {
     private final UpdatePatientUseCase updatePatientUseCase;
     private final UpdatePatientStatusUseCase updatePatientStatusUseCase;
     private final SearchPatientsUseCase searchPatientsUseCase;
+    private final AssignPatientUseCase assignPatientUseCase;
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
             @Valid @RequestBody CreatePatientRequest request
     ) {
-        PatientResponse response = createPatientUseCase.execute(request);
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(201).body(createPatientUseCase.execute(request));
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
     public ResponseEntity<List<PatientResponse>> getAllPatients() {
-        List<PatientResponse> response = listPatientsUseCase.execute();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(listPatientsUseCase.execute());
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponse> getPatientById(@PathVariable Long id) {
         return ResponseEntity.ok(getPatientByIdUseCase.execute(id));
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponse> updatePatient(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePatientRequest request
     ) {
-        PatientResponse response = updatePatientUseCase.execute(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(updatePatientUseCase.execute(id, request));
     }
 
-    @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<PatientResponse> updatePatientStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePatientStatusRequest request
@@ -58,9 +60,16 @@ public class PatientController {
         return ResponseEntity.ok(updatePatientStatusUseCase.execute(id, request));
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<PatientResponse>> searchPatients(@RequestParam String query) {
         return ResponseEntity.ok(searchPatientsUseCase.execute(query));
     }
 
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PostMapping("/{id}/assign")
+    public ResponseEntity<PatientResponse> assignPatient(@PathVariable Long id) {
+        return ResponseEntity.ok(assignPatientUseCase.execute(id));
+    }
 }
+
