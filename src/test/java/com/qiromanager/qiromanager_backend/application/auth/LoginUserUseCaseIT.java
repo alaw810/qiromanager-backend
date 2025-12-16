@@ -3,14 +3,14 @@ package com.qiromanager.qiromanager_backend.application.auth;
 import com.qiromanager.qiromanager_backend.api.auth.AuthResponse;
 import com.qiromanager.qiromanager_backend.api.auth.LoginRequest;
 import com.qiromanager.qiromanager_backend.api.auth.RegisterRequest;
+import com.qiromanager.qiromanager_backend.domain.exceptions.InvalidCredentialsException;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserInactiveException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +30,9 @@ class LoginUserUseCaseIT {
     @Autowired
     private UserRepository userRepository;
 
-    private RegisterRequest registerRequest;
-
     @BeforeEach
     void setup() {
-        registerRequest = new RegisterRequest();
+        RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setFullName("John Doe");
         registerRequest.setUsername("johndoe");
         registerRequest.setEmail("john@example.com");
@@ -58,29 +56,29 @@ class LoginUserUseCaseIT {
     }
 
     @Test
-    void login_withIncorrectPassword_throwsBadCredentialsException() {
+    void login_withIncorrectPassword_throwsInvalidCredentialsException() {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername("johndoe");
         loginRequest.setPassword("wrongpassword");
 
         assertThatThrownBy(() -> loginUserUseCase.execute(loginRequest))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("Invalid credentials");
+                .isInstanceOf(InvalidCredentialsException.class)
+                .hasMessage("Invalid username or password");
     }
 
     @Test
-    void login_withNonExistingUser_throwsBadCredentialsException() {
+    void login_withNonExistingUser_throwsInvalidCredentialsException() {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername("unknown");
         loginRequest.setPassword("secret123");
 
         assertThatThrownBy(() -> loginUserUseCase.execute(loginRequest))
-                .isInstanceOf(BadCredentialsException.class)
-                .hasMessage("Invalid credentials");
+                .isInstanceOf(InvalidCredentialsException.class)
+                .hasMessage("Invalid username or password");
     }
 
     @Test
-    void login_withDisabledUser_throwsDisabledException() {
+    void login_withDisabledUser_throwsUserInactiveException() {
         User user = userRepository.findByUsername("johndoe").orElseThrow();
         user.setActive(false);
         userRepository.save(user);
@@ -90,7 +88,7 @@ class LoginUserUseCaseIT {
         loginRequest.setPassword("secret123");
 
         assertThatThrownBy(() -> loginUserUseCase.execute(loginRequest))
-                .isInstanceOf(DisabledException.class)
-                .hasMessage("User account is disabled");
+                .isInstanceOf(UserInactiveException.class)
+                .hasMessage("User account is inactive");
     }
 }
