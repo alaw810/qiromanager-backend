@@ -48,7 +48,7 @@ class RegisterUserUseCaseTest {
 
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
-            user.setId(1L);
+            user.forceId(1L);
             return user;
         });
 

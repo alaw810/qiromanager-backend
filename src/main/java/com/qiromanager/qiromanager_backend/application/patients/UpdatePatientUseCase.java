@@ -2,7 +2,6 @@ package com.qiromanager.qiromanager_backend.application.patients;
 
 import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
-import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
 import com.qiromanager.qiromanager_backend.api.patients.UpdatePatientRequest;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
@@ -31,22 +30,16 @@ public class UpdatePatientUseCase {
         User currentUser = authenticatedUserService.getCurrentUser();
         authenticatedUserService.assertCanAccessPatient(currentUser, patient);
 
-        patient.setFullName(request.getFullName());
-        patient.setDateOfBirth(request.getDateOfBirth());
-        patient.setPhone(request.getPhone());
-        patient.setEmail(request.getEmail());
-        patient.setAddress(request.getAddress());
-        patient.setGeneralNotes(request.getGeneralNotes());
+        patient.update(
+                request.getFullName(),
+                request.getDateOfBirth(),
+                request.getPhone(),
+                request.getEmail(),
+                request.getAddress(),
+                request.getGeneralNotes()
+        );
 
         Patient updated = patientRepository.save(patient);
-
-        List<TherapistSummary> therapistSummaries =
-                updated.getTherapists().stream()
-                        .map(t -> TherapistSummary.builder()
-                                .id(t.getId())
-                                .fullName(t.getFullName())
-                                .build())
-                        .toList();
 
         return PatientMapper.toResponse(updated);
     }

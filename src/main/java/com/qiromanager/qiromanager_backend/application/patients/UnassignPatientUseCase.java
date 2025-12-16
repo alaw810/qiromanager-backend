@@ -33,9 +33,7 @@ public class UnassignPatientUseCase {
             throw new UnauthorizedRoleException();
         }
 
-        patient.getTherapists().removeIf(
-                t -> t.getId() != null && t.getId().equals(currentUser.getId())
-        );
+        patient.unassignTherapist(currentUser);
 
         Patient updated = patientRepository.save(patient);
 

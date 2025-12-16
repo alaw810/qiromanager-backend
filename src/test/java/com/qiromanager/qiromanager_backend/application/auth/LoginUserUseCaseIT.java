@@ -80,7 +80,7 @@ class LoginUserUseCaseIT {
     @Test
     void login_withDisabledUser_throwsUserInactiveException() {
         User user = userRepository.findByUsername("johndoe").orElseThrow();
-        user.setActive(false);
+        user.deactivate();
         userRepository.save(user);
 
         LoginRequest loginRequest = new LoginRequest();
