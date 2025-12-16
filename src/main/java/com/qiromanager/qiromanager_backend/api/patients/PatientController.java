@@ -21,6 +21,7 @@ public class PatientController {
     private final UpdatePatientStatusUseCase updatePatientStatusUseCase;
     private final SearchPatientsUseCase searchPatientsUseCase;
     private final AssignPatientUseCase assignPatientUseCase;
+    private final UnassignPatientUseCase unassignPatientUseCase;
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping
@@ -70,6 +71,11 @@ public class PatientController {
     @PostMapping("/{id}/assign")
     public ResponseEntity<PatientResponse> assignPatient(@PathVariable Long id) {
         return ResponseEntity.ok(assignPatientUseCase.execute(id));
+    }
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @DeleteMapping("/{id}/assign")
+    public ResponseEntity<PatientResponse> unassignPatient(@PathVariable Long id) {
+        return ResponseEntity.ok(unassignPatientUseCase.execute(id));
     }
 }
 
