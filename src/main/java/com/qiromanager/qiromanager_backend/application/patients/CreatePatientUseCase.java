@@ -3,7 +3,6 @@ package com.qiromanager.qiromanager_backend.application.patients;
 import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.CreatePatientRequest;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
-import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
@@ -26,27 +25,18 @@ public class CreatePatientUseCase {
 
         User therapist = authenticatedUserService.getCurrentUser();
 
-        Patient patient = Patient.builder()
-                .fullName(request.getFullName())
-                .dateOfBirth(request.getDateOfBirth())
-                .phone(request.getPhone())
-                .email(request.getEmail())
-                .address(request.getAddress())
-                .generalNotes(request.getGeneralNotes())
-                .active(true)
-                .build();
+        Patient patient = Patient.create(
+                request.getFullName(),
+                request.getDateOfBirth(),
+                request.getPhone(),
+                request.getEmail(),
+                request.getAddress(),
+                request.getGeneralNotes()
+        );
 
-        patient.getTherapists().add(therapist);
+        patient.assignTherapist(therapist);
 
         Patient saved = patientRepository.save(patient);
-
-        List<TherapistSummary> therapistSummaries =
-                saved.getTherapists().stream()
-                        .map(t -> TherapistSummary.builder()
-                                .id(t.getId())
-                                .fullName(t.getFullName())
-                                .build())
-                        .toList();
 
         return PatientMapper.toResponse(saved);
     }

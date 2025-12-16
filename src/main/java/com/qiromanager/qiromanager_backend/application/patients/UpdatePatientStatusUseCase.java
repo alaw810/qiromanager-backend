@@ -25,17 +25,13 @@ public class UpdatePatientStatusUseCase {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new PatientNotFoundException(id));
 
-        patient.setActive(request.getActive());
+        if (Boolean.TRUE.equals(request.getActive())) {
+            patient.activate();
+        } else {
+            patient.deactivate();
+        }
 
         Patient updated = patientRepository.save(patient);
-
-        List<TherapistSummary> therapistSummaries =
-                updated.getTherapists().stream()
-                        .map(t -> TherapistSummary.builder()
-                                .id(t.getId())
-                                .fullName(t.getFullName())
-                                .build())
-                        .toList();
 
         return PatientMapper.toResponse(updated);
     }
