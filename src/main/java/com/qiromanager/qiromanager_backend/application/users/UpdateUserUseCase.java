@@ -1,8 +1,6 @@
 package com.qiromanager.qiromanager_backend.application.users;
 
-import com.qiromanager.qiromanager_backend.api.mappers.UserMapper;
 import com.qiromanager.qiromanager_backend.api.users.UpdateUserRequest;
-import com.qiromanager.qiromanager_backend.api.users.UserResponse;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserAlreadyExistsException;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
@@ -18,7 +16,7 @@ public class UpdateUserUseCase {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserResponse execute(Long id, UpdateUserRequest request) {
+    public User execute(Long id, UpdateUserRequest request) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -35,12 +33,8 @@ public class UpdateUserUseCase {
                     throw new UserAlreadyExistsException("Email already exists");
                 });
 
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setUsername(request.getUsername());
+        user.updateProfile(request.getFullName(), request.getUsername(), request.getEmail());
 
-        User updated = userRepository.save(user);
-
-        return UserMapper.toResponse(updated);
+        return userRepository.save(user);
     }
 }

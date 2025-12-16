@@ -1,8 +1,6 @@
 package com.qiromanager.qiromanager_backend.application.users;
 
-import com.qiromanager.qiromanager_backend.api.mappers.UserMapper;
 import com.qiromanager.qiromanager_backend.api.users.UpdateUserStatusRequest;
-import com.qiromanager.qiromanager_backend.api.users.UserResponse;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
@@ -17,15 +15,17 @@ public class UpdateUserStatusUseCase {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserResponse execute(Long id, UpdateUserStatusRequest request) {
+    public User execute(Long id, UpdateUserStatusRequest request) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        user.setActive(request.getActive());
+        if (Boolean.TRUE.equals(request.getActive())) {
+            user.activate();
+        } else {
+            user.deactivate();
+        }
 
-        User updated = userRepository.save(user);
-
-        return UserMapper.toResponse(updated);
+        return userRepository.save(user);
     }
 }
