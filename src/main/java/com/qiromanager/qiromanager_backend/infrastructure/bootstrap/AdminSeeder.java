@@ -32,13 +32,13 @@ public class AdminSeeder {
             return;
         }
 
-        User admin = new User();
-        admin.setFullName("Administrator");
-        admin.setEmail("admin@example.com");
-        admin.setUsername(adminUsername);
-        admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.setRole(Role.ADMIN);
-        admin.setActive(true);
+        User admin = User.create(
+                "Administrator",
+                adminUsername,
+                "admin@example.com",
+                passwordEncoder.encode("admin123"),
+                Role.ADMIN
+        );
 
         userRepository.save(admin);
 
