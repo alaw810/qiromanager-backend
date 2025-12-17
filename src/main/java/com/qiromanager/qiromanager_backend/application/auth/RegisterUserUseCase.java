@@ -35,13 +35,13 @@ public class RegisterUserUseCase {
         }
 
         try {
-            User newUser = new User();
-            newUser.setFullName(request.getFullName());
-            newUser.setUsername(request.getUsername());
-            newUser.setEmail(request.getEmail());
-            newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-            newUser.setRole(Role.USER);
-            newUser.setActive(true);
+            User newUser = User.create(
+                    request.getFullName(),
+                    request.getUsername(),
+                    request.getEmail(),
+                    passwordEncoder.encode(request.getPassword()),
+                    Role.USER
+            );
 
             User saved = userRepository.save(newUser);
 

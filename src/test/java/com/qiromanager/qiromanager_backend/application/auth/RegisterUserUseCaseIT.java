@@ -65,7 +65,7 @@ class RegisterUserUseCaseIT {
 
         assertThatThrownBy(() -> registerUserUseCase.execute(duplicate))
                 .isInstanceOf(UserAlreadyExistsException.class)
-                .hasMessage("Email already registered");
+                .hasMessage("A user with this email already exists");
     }
 
     @Test
@@ -80,6 +80,6 @@ class RegisterUserUseCaseIT {
 
         assertThatThrownBy(() -> registerUserUseCase.execute(duplicate))
                 .isInstanceOf(UserAlreadyExistsException.class)
-                .hasMessage("Username already exists");
+                .hasMessage("A user with this username already exists");
     }
 }

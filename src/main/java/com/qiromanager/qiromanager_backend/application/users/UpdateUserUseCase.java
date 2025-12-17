@@ -1,8 +1,9 @@
 package com.qiromanager.qiromanager_backend.application.users;
 
 import com.qiromanager.qiromanager_backend.api.users.UpdateUserRequest;
-import com.qiromanager.qiromanager_backend.api.users.UserResponse;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserAlreadyExistsException;
+import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
+import com.qiromanager.qiromanager_backend.domain.user.Role;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +17,10 @@ public class UpdateUserUseCase {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserResponse execute(Long id, UpdateUserRequest request) {
+    public User execute(Long id, UpdateUserRequest request) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         userRepository.findByUsername(request.getUsername())
                 .filter(existing -> !existing.getId().equals(id))
@@ -33,19 +34,10 @@ public class UpdateUserUseCase {
                     throw new UserAlreadyExistsException("Email already exists");
                 });
 
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setUsername(request.getUsername());
+        Role newRole = request.getRole() != null ? Role.valueOf(request.getRole()) : null;
 
-        User updated = userRepository.save(user);
+        user.updateProfile(request.getFullName(), request.getUsername(), request.getEmail(), newRole);
 
-        return UserResponse.builder()
-                .id(updated.getId())
-                .fullName(updated.getFullName())
-                .email(updated.getEmail())
-                .username(updated.getUsername())
-                .role(updated.getRole().name())
-                .active(updated.isActive())
-                .build();
+        return userRepository.save(user);
     }
 }

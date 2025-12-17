@@ -7,14 +7,12 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private String fullName;
@@ -35,10 +33,48 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
+    protected User() {
+
+    }
+
+    private User(String fullName, String username, String email, String password, Role role) {
+        this.fullName = fullName;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.active = true;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public static User create(String fullName, String username, String email, String password, Role role) {
+        return new User(fullName, username, email, password, role);
+    }
+
+    public void activate() {
+        this.active = true;
+    }
+
+    public void deactivate() {
+        this.active = false;
+    }
+
+    public void updateProfile(String fullName, String username, String email, Role role) {
+        this.fullName = fullName;
+        this.username = username;
+        this.email = email;
+        if (role != null) {
+            this.role = role;
+        }
+    }
+
+    public void changePassword(String newEncodedPassword) {
+        this.password = newEncodedPassword;
+    }
+
+    public void forceId(Long id) {
+        this.id = id;
     }
 
     @PreUpdate

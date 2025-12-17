@@ -22,9 +22,13 @@ class JwtUtilTest {
         long expirationMillis = 1000 * 60 * 60; // 1 hora
         jwtUtil = new JwtUtil(secret, expirationMillis);
 
-        user = new User();
-        user.setUsername("johndoe");
-        user.setRole(Role.USER);
+        user = User.create(
+                "John Doe",
+                "johndoe",
+                "john@example.com",
+                "password",
+                Role.USER
+        );
     }
 
     @Test
@@ -49,9 +53,13 @@ class JwtUtilTest {
     void isTokenValid_shouldReturnFalseForTokenWithDifferentUser() {
         String token = jwtUtil.generateToken(user);
 
-        User otherUser = new User();
-        otherUser.setUsername("anotherUser");
-        otherUser.setRole(Role.USER);
+        User otherUser = User.create(
+                "Another User",
+                "anotherUser",
+                "anotheruser@example.com",
+                "password",
+                Role.USER
+        );
 
         boolean isValid = jwtUtil.isTokenValid(token, otherUser);
 
