@@ -60,10 +60,26 @@ public class User {
         this.active = false;
     }
 
-    public void updateProfile(String fullName, String username, String email) {
+    public void updateProfile(String fullName, String username, String email, Role role) {
         this.fullName = fullName;
         this.username = username;
         this.email = email;
+        if (role != null) {
+            this.role = role;
+        }
+    }
+
+    public void changePassword(String newEncodedPassword) {
+        this.password = newEncodedPassword;
+    }
+
+    public void forceId(Long id) {
+        this.id = id;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void changePassword(String newEncodedPassword) {
