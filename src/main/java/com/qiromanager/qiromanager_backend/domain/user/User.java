@@ -81,17 +81,4 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    public void changePassword(String newEncodedPassword) {
-        this.password = newEncodedPassword;
-    }
-
-    public void forceId(Long id) {
-        this.id = id;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }
