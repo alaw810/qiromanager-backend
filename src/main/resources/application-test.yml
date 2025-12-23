@@ -17,6 +17,11 @@ app:
     secret: test-secret-key-MUST-be-long-enough-123456789
     expiration-millis: 3600000
 
+  cloudinary:
+    cloud-name: "test-cloud"
+    api-key: "123456"
+    api-secret: "secret-test"
+
 logging:
   level:
     root: WARN

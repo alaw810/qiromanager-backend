@@ -74,11 +74,12 @@ class ClinicalRecordTest {
     void addAttachment_shouldAddAttachmentToSet() {
         ClinicalRecord record = ClinicalRecord.create(patient, therapist, RecordType.EVOLUTION, "Note");
 
-        record.addAttachment("http://cloud.url/file.pdf", "file.pdf", "application/pdf", 1024L);
+        record.addAttachment("http://cloud.url/file.pdf", "folder/file", "file.pdf", "application/pdf", 1024L);
 
         assertThat(record.getAttachments()).hasSize(1);
         Attachment attachment = record.getAttachments().iterator().next();
         assertThat(attachment.getUrl()).isEqualTo("http://cloud.url/file.pdf");
+        assertThat(attachment.getPublicId()).isEqualTo("folder/file"); // Verificación nueva
         assertThat(attachment.getClinicalRecord()).isEqualTo(record);
     }
 }
