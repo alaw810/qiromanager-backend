@@ -55,7 +55,15 @@ class ClinicalRecordRepositoryIT {
                 RecordType.EVOLUTION,
                 "Second visit evolution"
         );
-        newerRecord.addAttachment("http://cloud.url/xray.jpg", "xray.jpg", "image/jpeg", 2048L);
+
+        newerRecord.addAttachment(
+                "http://cloud.url/xray.jpg",
+                "folder/xray_123",
+                "xray.jpg",
+                "image/jpeg",
+                2048L
+        );
+
         clinicalRecordRepository.save(newerRecord);
 
         List<ClinicalRecord> history = clinicalRecordRepository.findByPatientId(patient.getId());
@@ -70,6 +78,9 @@ class ClinicalRecordRepositoryIT {
 
         ClinicalRecord retrievedNewer = history.get(0);
         assertThat(retrievedNewer.getAttachments()).hasSize(1);
-        assertThat(retrievedNewer.getAttachments().iterator().next().getOriginalFilename()).isEqualTo("xray.jpg");
+
+        var attachment = retrievedNewer.getAttachments().iterator().next();
+        assertThat(attachment.getOriginalFilename()).isEqualTo("xray.jpg");
+        assertThat(attachment.getPublicId()).isEqualTo("folder/xray_123");
     }
 }

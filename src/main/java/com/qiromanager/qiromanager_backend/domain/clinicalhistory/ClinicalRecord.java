@@ -87,8 +87,8 @@ public class ClinicalRecord {
         }
     }
 
-    public void addAttachment(String url, String originalFilename, String mimeType, Long size) {
-        Attachment attachment = Attachment.create(url, originalFilename, mimeType, size, this);
+    public void addAttachment(String url, String publicId, String originalFilename, String mimeType, Long size) {
+        Attachment attachment = Attachment.create(url, publicId, originalFilename, mimeType, size, this);
         this.attachments.add(attachment);
         this.updatedAt = LocalDateTime.now();
     }

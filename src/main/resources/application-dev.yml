@@ -24,6 +24,11 @@ app:
     secret: ${JWT_SECRET:qiro-manager-temporary-dev-secret-key-must-be-32-bytes}
     expiration-millis: ${JWT_EXPIRATION:3600000}
 
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME}
+    api-key: ${CLOUDINARY_API_KEY}
+    api-secret: ${CLOUDINARY_API_SECRET}
+
 logging:
   level:
     root: INFO

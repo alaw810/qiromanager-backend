@@ -19,6 +19,9 @@ public class Attachment {
     private String url;
 
     @Column(nullable = false)
+    private String publicId;
+
+    @Column(nullable = false)
     private String originalFilename;
 
     private String mimeType;
@@ -32,21 +35,25 @@ public class Attachment {
     protected Attachment() {
     }
 
-    private Attachment(String url, String originalFilename, String mimeType, Long size, ClinicalRecord clinicalRecord) {
+    private Attachment(String url, String publicId, String originalFilename, String mimeType, Long size, ClinicalRecord clinicalRecord) {
         this.url = url;
+        this.publicId = publicId;
         this.originalFilename = originalFilename;
         this.mimeType = mimeType;
         this.size = size;
         this.clinicalRecord = clinicalRecord;
     }
 
-    public static Attachment create(String url, String originalFilename, String mimeType, Long size, ClinicalRecord clinicalRecord) {
+    public static Attachment create(String url, String publicId, String originalFilename, String mimeType, Long size, ClinicalRecord clinicalRecord) {
         if (url == null || url.isBlank()) {
             throw new IllegalArgumentException("Attachment URL cannot be empty");
+        }
+        if (publicId == null || publicId.isBlank()) {
+            throw new IllegalArgumentException("Public ID required");
         }
         if (clinicalRecord == null) {
             throw new IllegalArgumentException("Attachment must belong to a clinical record");
         }
-        return new Attachment(url, originalFilename, mimeType, size, clinicalRecord);
+        return new Attachment(url, publicId, originalFilename, mimeType, size, clinicalRecord);
     }
 }
