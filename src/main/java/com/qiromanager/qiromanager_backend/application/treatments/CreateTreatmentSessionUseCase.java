@@ -4,6 +4,9 @@ import com.qiromanager.qiromanager_backend.api.mappers.TreatmentSessionMapper;
 import com.qiromanager.qiromanager_backend.api.treatments.CreateTreatmentSessionRequest;
 import com.qiromanager.qiromanager_backend.api.treatments.TreatmentSessionResponse;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
+import com.qiromanager.qiromanager_backend.domain.clinicalhistory.ClinicalRecord;
+import com.qiromanager.qiromanager_backend.domain.clinicalhistory.ClinicalRecordRepository;
+import com.qiromanager.qiromanager_backend.domain.clinicalhistory.RecordType;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
@@ -14,12 +17,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
+
 @Service
 @RequiredArgsConstructor
 public class CreateTreatmentSessionUseCase {
 
     private final TreatmentSessionRepository treatmentSessionRepository;
     private final PatientRepository patientRepository;
+    private final ClinicalRecordRepository clinicalRecordRepository;
     private final AuthenticatedUserService authenticatedUserService;
     private final TreatmentSessionMapper mapper;
 
@@ -38,7 +44,30 @@ public class CreateTreatmentSessionUseCase {
                 request.getSessionDate(),
                 request.getNotes()
         );
+        TreatmentSession savedSession = treatmentSessionRepository.save(session);
 
-        return mapper.toResponse(treatmentSessionRepository.save(session));
+        createAutomaticHistoryEntry(savedSession);
+
+        return mapper.toResponse(savedSession);
+    }
+
+    private void createAutomaticHistoryEntry(TreatmentSession session) {
+        String formattedDate = session.getSessionDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append("Treatment Session performed on ").append(formattedDate);
+
+        if (session.getNotes() != null && !session.getNotes().isBlank()) {
+            contentBuilder.append("\nSession Notes: ").append(session.getNotes());
+        }
+
+        ClinicalRecord historyEntry = ClinicalRecord.create(
+                session.getPatient(),
+                session.getTherapist(),
+                RecordType.EVOLUTION,
+                contentBuilder.toString()
+        );
+
+        clinicalRecordRepository.save(historyEntry);
     }
 }
