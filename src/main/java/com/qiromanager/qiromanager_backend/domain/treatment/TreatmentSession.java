@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "treatment_sessions")
@@ -59,5 +60,19 @@ public class TreatmentSession {
     public void updateNotes(String notes) {
         this.notes = notes;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String generateClinicalSummary() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        StringBuilder summary = new StringBuilder();
+
+        summary.append("Treatment Session performed on ")
+                .append(this.sessionDate.format(formatter));
+
+        if (this.notes != null && !this.notes.isBlank()) {
+            summary.append("\nSession Notes: ").append(this.notes);
+        }
+
+        return summary.toString();
     }
 }

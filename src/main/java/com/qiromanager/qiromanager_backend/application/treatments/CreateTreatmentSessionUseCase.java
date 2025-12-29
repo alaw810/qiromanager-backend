@@ -17,8 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.format.DateTimeFormatter;
-
 @Service
 @RequiredArgsConstructor
 public class CreateTreatmentSessionUseCase {
@@ -46,28 +44,15 @@ public class CreateTreatmentSessionUseCase {
         );
         TreatmentSession savedSession = treatmentSessionRepository.save(session);
 
-        createAutomaticHistoryEntry(savedSession);
-
-        return mapper.toResponse(savedSession);
-    }
-
-    private void createAutomaticHistoryEntry(TreatmentSession session) {
-        String formattedDate = session.getSessionDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
-
-        StringBuilder contentBuilder = new StringBuilder();
-        contentBuilder.append("Treatment Session performed on ").append(formattedDate);
-
-        if (session.getNotes() != null && !session.getNotes().isBlank()) {
-            contentBuilder.append("\nSession Notes: ").append(session.getNotes());
-        }
-
         ClinicalRecord historyEntry = ClinicalRecord.create(
-                session.getPatient(),
-                session.getTherapist(),
+                savedSession.getPatient(),
+                savedSession.getTherapist(),
                 RecordType.EVOLUTION,
-                contentBuilder.toString()
+                savedSession.generateClinicalSummary()
         );
 
         clinicalRecordRepository.save(historyEntry);
+
+        return mapper.toResponse(savedSession);
     }
 }
