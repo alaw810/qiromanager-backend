@@ -4,16 +4,15 @@ import com.qiromanager.qiromanager_backend.api.mappers.TreatmentSessionMapper;
 import com.qiromanager.qiromanager_backend.api.treatments.CreateTreatmentSessionRequest;
 import com.qiromanager.qiromanager_backend.api.treatments.TreatmentSessionResponse;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
-import com.qiromanager.qiromanager_backend.domain.clinicalhistory.ClinicalRecord;
-import com.qiromanager.qiromanager_backend.domain.clinicalhistory.ClinicalRecordRepository;
-import com.qiromanager.qiromanager_backend.domain.clinicalhistory.RecordType;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.treatment.TreatmentSession;
 import com.qiromanager.qiromanager_backend.domain.treatment.TreatmentSessionRepository;
+import com.qiromanager.qiromanager_backend.domain.treatment.events.TreatmentSessionCreatedEvent;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,9 +22,9 @@ public class CreateTreatmentSessionUseCase {
 
     private final TreatmentSessionRepository treatmentSessionRepository;
     private final PatientRepository patientRepository;
-    private final ClinicalRecordRepository clinicalRecordRepository;
     private final AuthenticatedUserService authenticatedUserService;
     private final TreatmentSessionMapper mapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public TreatmentSessionResponse execute(Long patientId, CreateTreatmentSessionRequest request) {
@@ -44,14 +43,7 @@ public class CreateTreatmentSessionUseCase {
         );
         TreatmentSession savedSession = treatmentSessionRepository.save(session);
 
-        ClinicalRecord historyEntry = ClinicalRecord.create(
-                savedSession.getPatient(),
-                savedSession.getTherapist(),
-                RecordType.EVOLUTION,
-                savedSession.generateClinicalSummary()
-        );
-
-        clinicalRecordRepository.save(historyEntry);
+        eventPublisher.publishEvent(new TreatmentSessionCreatedEvent(this, savedSession));
 
         return mapper.toResponse(savedSession);
     }
