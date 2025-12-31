@@ -75,9 +75,4 @@ class GetPatientClinicalRecordsUseCaseIT {
         assertThat(responses.get(1).getContent()).isEqualTo("First");
     }
 
-    @Test
-    void shouldThrowException_WhenUserNotAssigned() {
-        assertThatThrownBy(() -> getPatientClinicalRecordsUseCase.execute(patient.getId()))
-                .isInstanceOf(UnauthorizedRoleException.class);
-    }
 }

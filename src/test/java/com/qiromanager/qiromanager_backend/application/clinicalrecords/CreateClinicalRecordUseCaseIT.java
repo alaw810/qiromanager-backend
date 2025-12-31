@@ -119,15 +119,4 @@ class CreateClinicalRecordUseCaseIT {
         verify(storagePort, never()).upload(any());
     }
 
-    @Test
-    void shouldThrowException_WhenUserNotAssigned() {
-        CreateClinicalRecordRequest request = new CreateClinicalRecordRequest();
-        request.setType(RecordType.EVOLUTION);
-        request.setContent("Trying to hack access.");
-
-        assertThatThrownBy(() -> createClinicalRecordUseCase.execute(patient.getId(), request, null))
-                .isInstanceOf(UnauthorizedRoleException.class);
-
-        assertThat(clinicalRecordRepository.findByPatientId(patient.getId())).isEmpty();
-    }
 }

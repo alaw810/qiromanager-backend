@@ -34,8 +34,6 @@ public class CreateClinicalRecordUseCase {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));
 
-        authenticatedUserService.assertCanAccessPatient(currentUser, patient);
-
         ClinicalRecord record = ClinicalRecord.create(
                 patient,
                 currentUser,

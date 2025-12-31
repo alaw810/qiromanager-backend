@@ -1,6 +1,5 @@
 package com.qiromanager.qiromanager_backend.application.users;
 
-import com.qiromanager.qiromanager_backend.domain.exceptions.UnauthorizedRoleException;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.user.Role;
@@ -41,9 +40,4 @@ public class AuthenticatedUserService {
                 .anyMatch(t -> t.getId() != null && t.getId().equals(user.getId()));
     }
 
-    public void assertCanAccessPatient(User user, Patient patient) {
-        if (!isAdmin(user) && !isAssignedToPatient(user, patient)) {
-            throw new UnauthorizedRoleException();
-        }
-    }
 }

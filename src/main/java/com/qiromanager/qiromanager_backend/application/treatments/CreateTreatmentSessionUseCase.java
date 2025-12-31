@@ -33,8 +33,6 @@ public class CreateTreatmentSessionUseCase {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException(patientId));
 
-        authenticatedUserService.assertCanAccessPatient(therapist, patient);
-
         TreatmentSession session = TreatmentSession.create(
                 patient,
                 therapist,

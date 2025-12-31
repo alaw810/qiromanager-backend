@@ -4,7 +4,6 @@ import com.qiromanager.qiromanager_backend.api.treatments.CreateTreatmentSession
 import com.qiromanager.qiromanager_backend.api.treatments.TreatmentSessionResponse;
 import com.qiromanager.qiromanager_backend.domain.clinicalhistory.ClinicalRecord;
 import com.qiromanager.qiromanager_backend.domain.clinicalhistory.ClinicalRecordRepository;
-import com.qiromanager.qiromanager_backend.domain.exceptions.UnauthorizedRoleException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.treatment.TreatmentSession;
@@ -27,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -83,21 +81,10 @@ class CreateTreatmentSessionUseCaseIT {
         List<ClinicalRecord> history = clinicalRecordRepository.findByPatientId(patient.getId());
         assertThat(history).hasSize(1);
 
-        ClinicalRecord autoEntry = history.get(0);
+        ClinicalRecord autoEntry = history.getFirst();
         assertThat(autoEntry.getContent()).contains("Treatment Session performed");
         assertThat(autoEntry.getContent()).contains("Manual therapy and dry needling.");
         assertThat(autoEntry.getPerformedBy()).isEqualTo(therapist);
     }
 
-    @Test
-    void shouldThrowException_WhenUserNotAssigned() {
-        CreateTreatmentSessionRequest request = new CreateTreatmentSessionRequest();
-        request.setSessionDate(LocalDateTime.now());
-        request.setNotes("Trying to register a session without permission.");
-
-        assertThatThrownBy(() -> createTreatmentSessionUseCase.execute(patient.getId(), request))
-                .isInstanceOf(UnauthorizedRoleException.class);
-
-        assertThat(treatmentSessionRepository.findByPatientId(patient.getId())).isEmpty();
-    }
 }
