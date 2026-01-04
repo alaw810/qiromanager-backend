@@ -15,4 +15,10 @@ public interface PatientRepository {
 
     List<Patient> searchByFullName(String query);
 
+    long countAll();
+
+    long countActive();
+
+    long countByTherapistId(Long therapistId);
+
 }

@@ -6,6 +6,7 @@ import com.qiromanager.qiromanager_backend.infrastructure.treatment.jpa.JpaTreat
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,5 +29,10 @@ public class TreatmentSessionRepositoryImpl implements TreatmentSessionRepositor
     @Override
     public List<TreatmentSession> findByPatientId(Long patientId) {
         return jpaRepository.findByPatientIdOrderBySessionDateDesc(patientId);
+    }
+
+    @Override
+    public long countSessionsBetween(LocalDateTime start, LocalDateTime end) {
+        return jpaRepository.countBySessionDateBetween(start, end);
     }
 }

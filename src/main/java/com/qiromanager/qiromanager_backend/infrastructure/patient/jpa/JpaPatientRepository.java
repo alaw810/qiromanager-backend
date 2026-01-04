@@ -15,4 +15,9 @@ public interface JpaPatientRepository extends JpaRepository<Patient, Long> {
     @Query("SELECT p FROM Patient p WHERE p.active = true AND LOWER(p.fullName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Patient> searchByFullName(@Param("query") String query);
 
+    long countByActiveTrue();
+
+    @Query("SELECT COUNT(p) FROM Patient p JOIN p.therapists t WHERE t.id = :therapistId")
+    long countByTherapistId(@Param("therapistId") Long therapistId);
+
 }
