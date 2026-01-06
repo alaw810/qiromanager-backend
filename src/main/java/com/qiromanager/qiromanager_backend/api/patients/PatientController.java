@@ -33,8 +33,10 @@ public class PatientController {
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
-    public ResponseEntity<List<PatientResponse>> getAllPatients() {
-        return ResponseEntity.ok(listPatientsUseCase.execute());
+    public ResponseEntity<List<PatientResponse>> getAllPatients(
+            @RequestParam(required = false) Boolean assignedToMe
+    ) {
+        return ResponseEntity.ok(listPatientsUseCase.execute(assignedToMe));
     }
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")

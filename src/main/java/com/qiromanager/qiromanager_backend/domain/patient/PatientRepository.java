@@ -11,6 +11,8 @@ public interface PatientRepository {
 
     List<Patient> findAllActive();
 
+    List<Patient> findActiveByTherapistId(Long therapistId);
+
     Patient save(Patient patient);
 
     List<Patient> searchByFullName(String query);
@@ -20,5 +22,4 @@ public interface PatientRepository {
     long countActive();
 
     long countByTherapistId(Long therapistId);
-
 }

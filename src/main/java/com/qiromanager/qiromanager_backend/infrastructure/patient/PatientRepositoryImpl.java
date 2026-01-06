@@ -33,6 +33,11 @@ public class PatientRepositoryImpl implements PatientRepository {
     }
 
     @Override
+    public List<Patient> findActiveByTherapistId(Long therapistId) {
+        return jpaRepository.findActiveByTherapistId(therapistId);
+    }
+
+    @Override
     public Patient save(Patient patient) {
         return jpaRepository.save(patient);
     }

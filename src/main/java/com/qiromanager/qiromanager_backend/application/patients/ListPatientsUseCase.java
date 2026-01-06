@@ -20,19 +20,18 @@ public class ListPatientsUseCase {
     private final AuthenticatedUserService authenticatedUserService;
 
     @Transactional(readOnly = true)
-    public List<PatientResponse> execute() {
+    public List<PatientResponse> execute(Boolean assignedToMe) {
 
         User currentUser = authenticatedUserService.getCurrentUser();
-
         List<Patient> patients;
 
-        if (authenticatedUserService.isAdmin(currentUser)) {
-            patients = patientRepository.findAllActive();
+        boolean shouldFilterByTherapist = !authenticatedUserService.isAdmin(currentUser)
+                || Boolean.TRUE.equals(assignedToMe);
+
+        if (shouldFilterByTherapist) {
+            patients = patientRepository.findActiveByTherapistId(currentUser.getId());
         } else {
-            patients = patientRepository.findAllActive()
-                    .stream()
-                    .filter(patient -> authenticatedUserService.isAssignedToPatient(currentUser, patient))
-                    .toList();
+            patients = patientRepository.findAllActive();
         }
 
         return patients.stream()
