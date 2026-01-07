@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.api.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -18,6 +19,7 @@ public class RegisterRequest {
     private String username;
 
     @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 }
 
