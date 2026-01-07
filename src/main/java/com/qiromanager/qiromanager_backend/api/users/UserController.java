@@ -21,6 +21,7 @@ public class UserController {
     private final UpdateUserUseCase updateUserUseCase;
     private final UpdateUserStatusUseCase updateUserStatusUseCase;
     private final GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
+    private final UpdateUserProfileUseCase updateUserProfileUseCase;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -44,6 +45,14 @@ public class UserController {
         User myUser = getAuthenticatedUserUseCase.execute();
 
         return ResponseEntity.ok(UserMapper.toResponse(myUser));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateMyProfile(
+            @RequestBody @Valid UpdateUserProfileRequest request
+    ) {
+        User updatedUser = updateUserProfileUseCase.execute(request);
+        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
     }
 
     @PutMapping("/{id}")
