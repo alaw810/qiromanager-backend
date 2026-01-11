@@ -8,5 +8,8 @@ import java.util.List;
 
 public interface JpaTreatmentSessionRepository extends JpaRepository<TreatmentSession, Long> {
     List<TreatmentSession> findByPatientIdOrderBySessionDateDesc(Long patientId);
+
     long countBySessionDateBetween(LocalDateTime start, LocalDateTime end);
+
+    long countByTherapistIdAndSessionDateBetween(Long therapistId, LocalDateTime start, LocalDateTime end);
 }
