@@ -61,8 +61,8 @@ public class UserController {
             @RequestBody @Valid UpdateUserProfileRequest request
     ) {
         log.info("Request received: Update own profile");
-        User updatedUser = updateUserProfileUseCase.execute(request);
-        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
+        UserResponse response = updateUserProfileUseCase.execute(request);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
@@ -72,10 +72,10 @@ public class UserController {
             @RequestBody @Valid UpdateUserRequest request
     ) {
         log.info("Request received: Admin update for User ID: {}", id);
-        User updatedUser = updateUserUseCase.execute(id, request);
+        UserResponse response = updateUserUseCase.execute(id, request);
 
         log.debug("User ID: {} updated successfully", id);
-        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/status")
@@ -86,10 +86,10 @@ public class UserController {
     ) {
         log.info("Request received: Change status for User ID: {} to active={}", id, request.getActive());
 
-        User updatedUser = updateUserStatusUseCase.execute(id, request);
+        UserResponse response = updateUserStatusUseCase.execute(id, request);
 
         log.debug("User ID: {} status changed successfully", id);
-        return ResponseEntity.ok(UserMapper.toResponse(updatedUser));
+        return ResponseEntity.ok(response);
     }
 
 }
