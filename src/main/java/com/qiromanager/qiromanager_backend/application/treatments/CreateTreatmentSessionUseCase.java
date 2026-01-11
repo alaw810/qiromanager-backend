@@ -12,12 +12,14 @@ import com.qiromanager.qiromanager_backend.domain.treatment.TreatmentSessionRepo
 import com.qiromanager.qiromanager_backend.domain.treatment.events.TreatmentSessionCreatedEvent;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateTreatmentSessionUseCase {
 
     private final TreatmentSessionRepository treatmentSessionRepository;
@@ -41,6 +43,7 @@ public class CreateTreatmentSessionUseCase {
         );
         TreatmentSession savedSession = treatmentSessionRepository.save(session);
 
+        log.info("Treatment Session created (ID: {}). Publishing creation event...", savedSession.getId());
         eventPublisher.publishEvent(new TreatmentSessionCreatedEvent(this, savedSession));
 
         return mapper.toResponse(savedSession);

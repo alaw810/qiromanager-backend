@@ -4,22 +4,25 @@ import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
-import com.qiromanager.qiromanager_backend.domain.exceptions.UnauthorizedRoleException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UnassignPatientUseCase {
 
     private final PatientRepository patientRepository;
     private final AuthenticatedUserService authenticatedUserService;
 
     @Transactional
+    @CacheEvict(value = "patients", key = "#patientId")
     public PatientResponse execute(Long patientId) {
 
         User currentUser = authenticatedUserService.getCurrentUser();
@@ -29,9 +32,14 @@ public class UnassignPatientUseCase {
 
         boolean isAssigned = authenticatedUserService.isAssignedToPatient(currentUser, patient);
 
-        if (!isAssigned && !authenticatedUserService.isAdmin(currentUser)) {
-            throw new UnauthorizedRoleException();
+        if (!isAssigned) {
+            log.debug("Therapist '{}' was not assigned to patient '{}', nothing to do.",
+                    currentUser.getUsername(), patient.getFullName());
+            return PatientMapper.toResponse(patient);
         }
+
+        log.info("Unassigning therapist '{}' from patient '{}' (ID: {})",
+                currentUser.getUsername(), patient.getFullName(), patientId);
 
         patient.unassignTherapist(currentUser);
 

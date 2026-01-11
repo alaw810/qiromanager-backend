@@ -6,6 +6,7 @@ import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundExce
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class GetPatientByIdUseCase {
     private final PatientRepository patientRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "patients", key = "#id")
     public PatientResponse execute(Long id) {
 
         Patient patient = patientRepository.findById(id)
