@@ -8,6 +8,7 @@ import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ public class UpdatePatientStatusUseCase {
     private final PatientRepository patientRepository;
 
     @Transactional
+    @CacheEvict(value = "patients", key = "#id")
     public PatientResponse execute(Long id, UpdatePatientStatusRequest request) {
 
         Patient patient = patientRepository.findById(id)

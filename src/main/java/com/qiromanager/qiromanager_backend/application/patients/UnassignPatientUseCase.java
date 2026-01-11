@@ -9,6 +9,7 @@ import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class UnassignPatientUseCase {
     private final AuthenticatedUserService authenticatedUserService;
 
     @Transactional
+    @CacheEvict(value = "patients", key = "#patientId")
     public PatientResponse execute(Long patientId) {
 
         User currentUser = authenticatedUserService.getCurrentUser();
