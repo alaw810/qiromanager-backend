@@ -13,12 +13,14 @@ import com.qiromanager.qiromanager_backend.domain.storage.StoragePort;
 import com.qiromanager.qiromanager_backend.domain.storage.StoredFile;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateClinicalRecordUseCase {
 
     private final ClinicalRecordRepository clinicalRecordRepository;
@@ -42,6 +44,7 @@ public class CreateClinicalRecordUseCase {
         );
 
         if (file != null && !file.isEmpty()) {
+            log.info("Uploading attachment for Clinical Record (Patient ID: {})", patientId);
             StoredFile storedFile = storagePort.upload(file);
 
             record.addAttachment(
@@ -54,6 +57,7 @@ public class CreateClinicalRecordUseCase {
         }
 
         ClinicalRecord savedRecord = clinicalRecordRepository.save(record);
+        log.info("Clinical Record created successfully (ID: {})", savedRecord.getId());
 
         return mapper.toResponse(savedRecord);
     }

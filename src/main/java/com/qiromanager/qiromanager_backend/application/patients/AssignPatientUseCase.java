@@ -8,11 +8,13 @@ import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AssignPatientUseCase {
 
     private final PatientRepository patientRepository;
@@ -29,7 +31,13 @@ public class AssignPatientUseCase {
         boolean alreadyAssigned = authenticatedUserService.isAssignedToPatient(currentUser, patient);
 
         if (!alreadyAssigned) {
+            log.info("Assigning therapist '{}' to patient '{}' (ID: {})",
+                    currentUser.getUsername(), patient.getFullName(), patientId);
+
             patient.assignTherapist(currentUser);
+        } else {
+            log.debug("Therapist '{}' was already assigned to patient '{}'",
+                    currentUser.getUsername(), patient.getFullName());
         }
 
         Patient updated = patientRepository.save(patient);

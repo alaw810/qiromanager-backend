@@ -8,6 +8,7 @@ import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreatePatientUseCase {
 
     private final PatientRepository patientRepository;
@@ -37,6 +39,8 @@ public class CreatePatientUseCase {
         patient.assignTherapist(therapist);
 
         Patient saved = patientRepository.save(patient);
+
+        log.info("New patient created: {} (ID: {})", saved.getFullName(), saved.getId());
 
         return PatientMapper.toResponse(saved);
     }

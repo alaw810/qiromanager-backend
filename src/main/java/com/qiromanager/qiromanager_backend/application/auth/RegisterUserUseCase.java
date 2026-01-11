@@ -27,10 +27,12 @@ public class RegisterUserUseCase {
     public AuthResponse execute(RegisterRequest request) {
 
         if (userRepository.existsByUsername(request.getUsername())) {
+            log.warn("Registration failed: Username '{}' already exists", request.getUsername());
             throw new UserAlreadyExistsException("username");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
+            log.warn("Registration failed: Email '{}' already exists", request.getEmail());
             throw new UserAlreadyExistsException("email");
         }
 
@@ -57,8 +59,8 @@ public class RegisterUserUseCase {
                     .build();
 
         } catch (DataIntegrityViolationException e) {
-            log.error("Database duplicate detected for: {}", request.getUsername());
-            throw new UserAlreadyExistsException("User or email already exists (concurrency)");
+            log.error("Database constraint violation during registration for: {}", request.getUsername(), e);
+            throw new UserAlreadyExistsException("User or email already exists");
         }
     }
 }
