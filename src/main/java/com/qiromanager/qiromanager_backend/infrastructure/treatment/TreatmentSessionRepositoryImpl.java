@@ -35,4 +35,9 @@ public class TreatmentSessionRepositoryImpl implements TreatmentSessionRepositor
     public long countSessionsBetween(LocalDateTime start, LocalDateTime end) {
         return jpaRepository.countBySessionDateBetween(start, end);
     }
+
+    @Override
+    public long countTherapistSessionsBetween(Long therapistId, LocalDateTime start, LocalDateTime end) {
+        return jpaRepository.countByTherapistIdAndSessionDateBetween(therapistId, start, end);
+    }
 }

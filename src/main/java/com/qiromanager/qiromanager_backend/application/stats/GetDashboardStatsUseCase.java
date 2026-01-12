@@ -26,14 +26,20 @@ public class GetDashboardStatsUseCase {
     public DashboardStatsResponse execute() {
         User currentUser = authenticatedUserService.getCurrentUser();
 
-        long totalPatients = patientRepository.countAll();
-        long activePatients = patientRepository.countActive();
-        long myAssignedPatients = patientRepository.countByTherapistId(currentUser.getId());
-
         LocalDateTime startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
         LocalDateTime endOfMonth = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
 
-        long sessionsThisMonth = treatmentSessionRepository.countSessionsBetween(startOfMonth, endOfMonth);
+        long sessionsThisMonth;
+
+        if (authenticatedUserService.isAdmin(currentUser)) {
+            sessionsThisMonth = treatmentSessionRepository.countSessionsBetween(startOfMonth, endOfMonth);
+        } else {
+            sessionsThisMonth = treatmentSessionRepository.countTherapistSessionsBetween(currentUser.getId(), startOfMonth, endOfMonth);
+        }
+
+        long totalPatients = patientRepository.countAll();
+        long activePatients = patientRepository.countActive();
+        long myAssignedPatients = patientRepository.countByTherapistId(currentUser.getId());
 
         return DashboardStatsResponse.builder()
                 .totalPatients(totalPatients)
