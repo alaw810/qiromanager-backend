@@ -33,6 +33,11 @@ public class PatientRepositoryImpl implements PatientRepository {
     }
 
     @Override
+    public List<Patient> findActiveByTherapistId(Long therapistId) {
+        return jpaRepository.findActiveByTherapistId(therapistId);
+    }
+
+    @Override
     public Patient save(Patient patient) {
         return jpaRepository.save(patient);
     }
@@ -42,4 +47,18 @@ public class PatientRepositoryImpl implements PatientRepository {
         return jpaRepository.searchByFullName(query);
     }
 
+    @Override
+    public long countAll() {
+        return jpaRepository.count();
+    }
+
+    @Override
+    public long countActive() {
+        return jpaRepository.countByActiveTrue();
+    }
+
+    @Override
+    public long countByTherapistId(Long therapistId) {
+        return jpaRepository.countByTherapistId(therapistId);
+    }
 }

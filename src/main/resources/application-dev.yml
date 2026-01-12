@@ -24,7 +24,20 @@ app:
     secret: ${JWT_SECRET:qiro-manager-temporary-dev-secret-key-must-be-32-bytes}
     expiration-millis: ${JWT_EXPIRATION:3600000}
 
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME}
+    api-key: ${CLOUDINARY_API_KEY}
+    api-secret: ${CLOUDINARY_API_SECRET}
+
 logging:
   level:
     root: INFO
-    org.springframework.web: DEBUG
+    com.qiromanager.qiromanager_backend: DEBUG
+    org.hibernate.SQL: WARN
+  file:
+    name: logs/qiromanager.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
+      file-name-pattern: logs/qiromanager-%d{yyyy-MM-dd}.%i.log
