@@ -20,6 +20,9 @@ server:
   port: 8080
 
 app:
+  cors:
+    allowed-origins: http://localhost:3000
+
   jwt:
     secret: ${JWT_SECRET:qiro-manager-temporary-dev-secret-key-must-be-32-bytes}
     expiration-millis: ${JWT_EXPIRATION:3600000}
