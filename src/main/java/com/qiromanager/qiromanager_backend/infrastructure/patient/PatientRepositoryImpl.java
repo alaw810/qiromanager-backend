@@ -3,6 +3,8 @@ package com.qiromanager.qiromanager_backend.infrastructure.patient;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import com.qiromanager.qiromanager_backend.infrastructure.patient.jpa.JpaPatientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,8 +35,18 @@ public class PatientRepositoryImpl implements PatientRepository {
     }
 
     @Override
+    public Page<Patient> findAllActive(Pageable pageable) {
+        return jpaRepository.findAllActive(pageable);
+    }
+
+    @Override
     public List<Patient> findActiveByTherapistId(Long therapistId) {
         return jpaRepository.findActiveByTherapistId(therapistId);
+    }
+
+    @Override
+    public Page<Patient> findActiveByTherapistId(Long therapistId, Pageable pageable) {
+        return jpaRepository.findActiveByTherapistId(therapistId, pageable);
     }
 
     @Override
@@ -45,6 +57,11 @@ public class PatientRepositoryImpl implements PatientRepository {
     @Override
     public List<Patient> searchByFullName(String query) {
         return jpaRepository.searchByFullName(query);
+    }
+
+    @Override
+    public Page<Patient> searchByFullName(String query, Pageable pageable) {
+        return jpaRepository.searchByFullName(query, pageable);
     }
 
     @Override
