@@ -1,14 +1,16 @@
 package com.qiromanager.qiromanager_backend.api.patients;
 
+import com.qiromanager.qiromanager_backend.api.common.PageResponse;
 import com.qiromanager.qiromanager_backend.application.patients.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/patients")
@@ -40,15 +42,18 @@ public class PatientController {
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
-    public ResponseEntity<List<PatientResponse>> getAllPatients(
-            @RequestParam(required = false) Boolean assignedToMe
+    public ResponseEntity<PageResponse<PatientResponse>> getAllPatients(
+            @RequestParam(required = false) Boolean assignedToMe,
+            @PageableDefault(size = 20, sort = "fullName") Pageable pageable
     ) {
-        log.info("Request received: List patients (AssignedToMe filter: {})", assignedToMe);
+        log.info("Request received: List patients (AssignedToMe filter: {}, page: {}, size: {})",
+                assignedToMe, pageable.getPageNumber(), pageable.getPageSize());
 
-        List<PatientResponse> patients = listPatientsUseCase.execute(assignedToMe);
+        Page<PatientResponse> patients = listPatientsUseCase.execute(assignedToMe, pageable);
 
-        log.debug("Returning {} patients", patients.size());
-        return ResponseEntity.ok(patients);
+        log.debug("Returning page {}/{} ({} patients)", pageable.getPageNumber(),
+                patients.getTotalPages(), patients.getNumberOfElements());
+        return ResponseEntity.ok(PageResponse.from(patients));
     }
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
@@ -92,13 +97,17 @@ public class PatientController {
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/search")
-    public ResponseEntity<List<PatientResponse>> searchPatients(@RequestParam String query) {
-        log.info("Request received: Search patients with query: '{}'", query);
+    public ResponseEntity<PageResponse<PatientResponse>> searchPatients(
+            @RequestParam String query,
+            @PageableDefault(size = 20, sort = "fullName") Pageable pageable
+    ) {
+        log.info("Request received: Search patients with query: '{}' (page: {}, size: {})",
+                query, pageable.getPageNumber(), pageable.getPageSize());
 
-        List<PatientResponse> results = searchPatientsUseCase.execute(query);
+        Page<PatientResponse> results = searchPatientsUseCase.execute(query, pageable);
 
-        log.debug("Search found {} matching patients", results.size());
-        return ResponseEntity.ok(results);
+        log.debug("Search found {} matching patients", results.getTotalElements());
+        return ResponseEntity.ok(PageResponse.from(results));
     }
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")

@@ -2,13 +2,12 @@ package com.qiromanager.qiromanager_backend.application.patients;
 
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.api.patients.TherapistSummary;
-import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,19 +16,16 @@ public class SearchPatientsUseCase {
     private final PatientRepository patientRepository;
 
     @Transactional(readOnly = true)
-    public List<PatientResponse> execute(String query) {
+    public Page<PatientResponse> execute(String query, Pageable pageable) {
 
-        List<Patient> patients = patientRepository.searchByFullName(query);
-
-        return patients.stream()
+        return patientRepository.searchByFullName(query, pageable)
                 .map(patient -> {
-                    List<TherapistSummary> therapistSummaries =
-                            patient.getTherapists().stream()
-                                    .map(t -> TherapistSummary.builder()
-                                            .id(t.getId())
-                                            .fullName(t.getFullName())
-                                            .build())
-                                    .toList();
+                    var therapistSummaries = patient.getTherapists().stream()
+                            .map(t -> TherapistSummary.builder()
+                                    .id(t.getId())
+                                    .fullName(t.getFullName())
+                                    .build())
+                            .toList();
 
                     return PatientResponse.builder()
                             .id(patient.getId())
@@ -44,6 +40,6 @@ public class SearchPatientsUseCase {
                             .updatedAt(patient.getUpdatedAt())
                             .therapists(therapistSummaries)
                             .build();
-                }).toList();
+                });
     }
 }
