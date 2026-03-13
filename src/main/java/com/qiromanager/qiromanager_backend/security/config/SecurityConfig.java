@@ -1,6 +1,7 @@
 package com.qiromanager.qiromanager_backend.security.config;
 
 import com.qiromanager.qiromanager_backend.security.jwt.JwtAuthenticationFilter;
+import com.qiromanager.qiromanager_backend.security.ratelimit.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -62,7 +63,8 @@ public class SecurityConfig {
                         })
                 )
 
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new RateLimitFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
     }
