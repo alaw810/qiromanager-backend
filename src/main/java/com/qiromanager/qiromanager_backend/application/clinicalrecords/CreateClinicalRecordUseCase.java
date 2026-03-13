@@ -53,25 +53,36 @@ public class CreateClinicalRecordUseCase {
                 request.getContent()
         );
 
-        if (file != null && !file.isEmpty()) {
-            validateFile(file);
-            log.info("Uploading attachment for Clinical Record (Patient ID: {})", patientId);
-            StoredFile storedFile = storagePort.upload(file);
+        StoredFile storedFile = null;
 
-            record.addAttachment(
-                    storedFile.getUrl(),
-                    storedFile.getPublicId(),
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getSize()
-            );
+        try {
+            if (file != null && !file.isEmpty()) {
+                validateFile(file);
+                log.info("Uploading attachment for Clinical Record (Patient ID: {})", patientId);
+                storedFile = storagePort.upload(file);
+
+                record.addAttachment(
+                        storedFile.getUrl(),
+                        storedFile.getPublicId(),
+                        file.getOriginalFilename(),
+                        file.getContentType(),
+                        file.getSize()
+                );
+            }
+
+            ClinicalRecord savedRecord = clinicalRecordRepository.save(record);
+
+            log.info("Clinical Record created successfully (ID: {})", savedRecord.getId());
+
+            return mapper.toResponse(savedRecord);
+
+        } catch (Exception e) {
+            if (storedFile != null) {
+                log.warn("DB save failed after Cloudinary upload. Deleting orphaned file: {}", storedFile.getPublicId());
+                storagePort.delete(storedFile.getPublicId());
+            }
+            throw e;
         }
-
-        ClinicalRecord savedRecord = clinicalRecordRepository.save(record);
-
-        log.info("Clinical Record created successfully (ID: {})", savedRecord.getId());
-
-        return mapper.toResponse(savedRecord);
     }
 
     private void validateFile(MultipartFile file) {
