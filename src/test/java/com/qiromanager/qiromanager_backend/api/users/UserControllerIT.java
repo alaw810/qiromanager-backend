@@ -42,7 +42,7 @@ class UserControllerIT {
     void getAllUsers_ShouldReturn200_WhenUserIsAdmin() throws Exception {
         User user = User.create("Test User", "test", "test@test.com", "pass", Role.USER);
         user.forceId(1L);
-        when(listUsersUseCase.execute()).thenReturn(List.of(user));
+        when(listUsersUseCase.execute(null)).thenReturn(List.of(user));
 
         mockMvc.perform(get("/api/v1/users"))
                 .andExpect(status().isOk())
