@@ -2,6 +2,10 @@ package com.qiromanager.qiromanager_backend.api.patients;
 
 import com.qiromanager.qiromanager_backend.api.common.PageResponse;
 import com.qiromanager.qiromanager_backend.application.patients.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Patients", description = "Create, read, update and manage patient assignments. Requires JWT.")
 @RestController
 @RequestMapping("/api/v1/patients")
 @RequiredArgsConstructor
@@ -27,6 +32,11 @@ public class PatientController {
     private final AssignPatientUseCase assignPatientUseCase;
     private final UnassignPatientUseCase unassignPatientUseCase;
 
+    @Operation(summary = "Create a new patient (auto-assigned to the calling therapist)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Patient created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping
     public ResponseEntity<PatientResponse> createPatient(
@@ -40,6 +50,8 @@ public class PatientController {
         return ResponseEntity.status(201).body(response);
     }
 
+    @Operation(summary = "List all active patients (paginated). Use assignedToMe=true to filter by current therapist.")
+    @ApiResponse(responseCode = "200", description = "Paginated list of patients")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping
     public ResponseEntity<PageResponse<PatientResponse>> getAllPatients(
@@ -56,6 +68,11 @@ public class PatientController {
         return ResponseEntity.ok(PageResponse.from(patients));
     }
 
+    @Operation(summary = "Get patient details by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Patient found"),
+            @ApiResponse(responseCode = "404", description = "Patient not found")
+    })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponse> getPatientById(@PathVariable Long id) {
@@ -67,6 +84,11 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Update patient data")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Patient updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Patient not found")
+    })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<PatientResponse> updatePatient(
@@ -81,6 +103,11 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Activate or deactivate a patient (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Patient not found")
+    })
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/status")
     public ResponseEntity<PatientResponse> updatePatientStatus(
@@ -95,6 +122,8 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Search patients by full name (paginated)")
+    @ApiResponse(responseCode = "200", description = "Paginated search results")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<PageResponse<PatientResponse>> searchPatients(
@@ -110,6 +139,11 @@ public class PatientController {
         return ResponseEntity.ok(PageResponse.from(results));
     }
 
+    @Operation(summary = "Assign the calling therapist to a patient")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Assigned successfully (idempotent)"),
+            @ApiResponse(responseCode = "404", description = "Patient not found")
+    })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/{id}/assign")
     public ResponseEntity<PatientResponse> assignPatient(@PathVariable Long id) {
@@ -121,6 +155,11 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Remove the calling therapist from a patient")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Unassigned successfully (no-op if not assigned)"),
+            @ApiResponse(responseCode = "404", description = "Patient not found")
+    })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @DeleteMapping("/{id}/assign")
     public ResponseEntity<PatientResponse> unassignPatient(@PathVariable Long id) {

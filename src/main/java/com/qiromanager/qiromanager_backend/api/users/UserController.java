@@ -3,6 +3,10 @@ package com.qiromanager.qiromanager_backend.api.users;
 import com.qiromanager.qiromanager_backend.api.mappers.UserMapper;
 import com.qiromanager.qiromanager_backend.application.users.*;
 import com.qiromanager.qiromanager_backend.domain.user.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Users", description = "User management. Admin endpoints require ADMIN role.")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -25,6 +30,8 @@ public class UserController {
     private final GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
     private final UpdateUserProfileUseCase updateUserProfileUseCase;
 
+    @Operation(summary = "List all users (ADMIN only)")
+    @ApiResponse(responseCode = "200", description = "List of all users")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
@@ -38,6 +45,11 @@ public class UserController {
                 .toList());
     }
 
+    @Operation(summary = "Get user by ID (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
@@ -46,6 +58,8 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 
+    @Operation(summary = "Get the profile of the authenticated user")
+    @ApiResponse(responseCode = "200", description = "Authenticated user profile")
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<UserResponse> getMe() {
@@ -55,6 +69,8 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toResponse(myUser));
     }
 
+    @Operation(summary = "Update own name and/or password")
+    @ApiResponse(responseCode = "200", description = "Profile updated successfully")
     @PutMapping("/me")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<UserResponse> updateMyProfile(
@@ -65,6 +81,12 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Update any user's data including role (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "409", description = "Username or email already taken")
+    })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(
@@ -78,6 +100,11 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Activate or deactivate a user account (ADMIN only)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUserStatus(
