@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.application.patients;
 
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
 import com.qiromanager.qiromanager_backend.api.patients.UpdatePatientStatusRequest;
+import com.qiromanager.qiromanager_backend.application.audit.AuditService;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
@@ -24,6 +25,9 @@ class UpdatePatientStatusUseCaseTest {
 
     @Mock
     private PatientRepository patientRepository;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private UpdatePatientStatusUseCase updatePatientStatusUseCase;

@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.application.patients;
 
 import com.qiromanager.qiromanager_backend.api.patients.CreatePatientRequest;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
+import com.qiromanager.qiromanager_backend.application.audit.AuditService;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
@@ -28,6 +29,9 @@ class CreatePatientUseCaseTest {
 
     @Mock
     private AuthenticatedUserService authenticatedUserService;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private CreatePatientUseCase createPatientUseCase;
