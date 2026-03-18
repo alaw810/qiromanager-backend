@@ -93,6 +93,10 @@ public class Patient {
         this.therapists.removeIf(t -> t.equals(therapist));
     }
 
+    public void forceId(Long id) {
+        this.id = id;
+    }
+
     public Set<User> getTherapists() {
         return Collections.unmodifiableSet(therapists);
     }

@@ -10,4 +10,5 @@ public interface TreatmentSessionRepository {
     List<TreatmentSession> findByPatientId(Long patientId);
     long countSessionsBetween(LocalDateTime start, LocalDateTime end);
     long countTherapistSessionsBetween(Long therapistId, LocalDateTime start, LocalDateTime end);
+    void delete(Long id);
 }

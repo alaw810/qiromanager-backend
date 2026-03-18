@@ -57,6 +57,16 @@ public class TreatmentSession {
         return new TreatmentSession(patient, therapist, sessionDate, notes);
     }
 
+    public void forceId(Long id) {
+        this.id = id;
+    }
+
+    public void update(LocalDateTime sessionDate, String notes) {
+        this.sessionDate = sessionDate;
+        this.notes = notes;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public void updateNotes(String notes) {
         this.notes = notes;
         this.updatedAt = LocalDateTime.now();
