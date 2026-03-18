@@ -63,6 +63,12 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(TreatmentSessionNotFoundException.class)
+    public ResponseEntity<ApiError> handleTreatmentSessionNotFound(TreatmentSessionNotFoundException ex, HttpServletRequest request) {
+        log.warn("Treatment session not found at {}: {}", request.getRequestURI(), ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(ClinicalRecordNotFoundException.class)
     public ResponseEntity<ApiError> handleClinicalRecordNotFound(ClinicalRecordNotFoundException ex, HttpServletRequest request) {
         log.warn("Clinical record not found at {}: {}", request.getRequestURI(), ex.getMessage());
