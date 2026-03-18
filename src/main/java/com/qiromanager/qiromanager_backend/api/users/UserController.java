@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.api.users;
 
 import com.qiromanager.qiromanager_backend.api.mappers.UserMapper;
 import com.qiromanager.qiromanager_backend.application.users.*;
+import com.qiromanager.qiromanager_backend.domain.user.Role;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,14 +31,22 @@ public class UserController {
     private final GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
     private final UpdateUserProfileUseCase updateUserProfileUseCase;
 
-    @Operation(summary = "List all users (ADMIN only)")
-    @ApiResponse(responseCode = "200", description = "List of all users")
+    @Operation(summary = "List all users, optionally filtered by role (ADMIN only)")
+    @ApiResponse(responseCode = "200", description = "List of users")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        log.info("Request received: List all users (ADMIN action)");
+    public ResponseEntity<List<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String role
+    ) {
+        Role parsedRole = null;
+        if (role != null && !role.isBlank()) {
+            parsedRole = Role.valueOf(role.toUpperCase());
+            log.info("Request received: List users filtered by role={} (ADMIN action)", parsedRole);
+        } else {
+            log.info("Request received: List all users (ADMIN action)");
+        }
 
-        List<User> users = listUsersUseCase.execute();
+        List<User> users = listUsersUseCase.execute(parsedRole);
 
         log.debug("Returning {} users", users.size());
         return ResponseEntity.ok(users.stream()

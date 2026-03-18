@@ -1,5 +1,6 @@
 package com.qiromanager.qiromanager_backend.infrastructure.user;
 
+import com.qiromanager.qiromanager_backend.domain.user.Role;
 import com.qiromanager.qiromanager_backend.domain.user.User;
 import com.qiromanager.qiromanager_backend.domain.user.UserRepository;
 import com.qiromanager.qiromanager_backend.infrastructure.user.jpa.JpaUserRepository;
@@ -50,5 +51,10 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<User> findAll() {
         return jpaRepository.findAll();
+    }
+
+    @Override
+    public List<User> findByRole(Role role) {
+        return jpaRepository.findByRole(role);
     }
 }
