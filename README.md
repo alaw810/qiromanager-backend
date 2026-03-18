@@ -1,149 +1,286 @@
-# 🏥 Qiromanager
+# 🏥 Qiromanager Backend
 
-**Qiromanager** is a comprehensive digital platform designed to modernize the management of physiotherapy and massage therapy clinics. It enables therapists and administrators to manage patients, clinical histories, medical documents, and treatment sessions in a secure and efficient environment.
+A comprehensive digital platform designed to modernize the management of physiotherapy and massage therapy clinics. It provides a secure, modular REST API for managing patients, clinical histories, medical documents, and treatment sessions.
 
 ---
 
-## 🚀 Key Features
+## 📋 Table of Contents
+
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [API Reference](#-api-reference)
+- [Roles & Permissions](#-roles--permissions)
+- [Auditing](#-auditing)
+- [Running Tests](#-running-tests)
+- [Author](#-author)
+
+---
+
+## ✨ Key Features
 
 ### 👥 Patient Management
-* **Complete CRUD:** Registration, editing, and advanced search of patients.
-* **Smart Assignment:** Therapists can assign patients to themselves ("My Patients") for personalized tracking.
-* **Status Control:** Activation and deactivation of patient profiles.
+- **Complete CRUD:** Registration, editing, and advanced search of patients with pagination
+- **Smart Assignment:** Therapists assign patients to themselves ("My Patients") for personalized tracking
+- **Status Control:** Activation and deactivation of patient profiles (ADMIN)
 
 ### 🩺 Digital Clinical History
-* **Chronological Record:** Clear visualization of the patient's evolution.
-* **File Attachments:** Secure upload of reports, X-rays, and consent forms (integrated with **Cloudinary**).
-* **Automation:** Automatic generation of history entries when recording a session (Event-Driven).
+- **Typed Records:** Anamnesis, evolution notes, medical reports, consent forms, recommendations
+- **File Attachments:** Secure upload of reports, X-rays, and documents integrated with **Cloudinary**
+- **Automation:** Automatic history entries generated via Spring Events when a session is recorded
 
 ### 💆 Treatment Sessions
-* Detailed logging of interventions and technical notes.
-* Automatic calculation of activity statistics.
+- Full CRUD for session records: log, update, and delete interventions with technical notes
+- Automatic calculation of activity statistics per therapist and globally
 
 ### 📊 Smart Dashboard
-* **Admin View:** Global business metrics (Total patients, monthly activity, inactive cases).
-* **Therapist View:** Personal metrics (My assigned patients, my sessions this month).
+- **Admin View:** Global metrics — total patients, monthly activity, inactive cases
+- **Therapist View:** Personal metrics — assigned patients, my sessions this month
 
-### 🔐 Security & Users
-* Robust authentication with **JWT**.
-* Differentiated Roles: `ADMIN` (Global management) and `USER` (Therapist).
-* Self-profile management.
+### 🔐 Security
+- JWT authentication with rate-limited login (Bucket4j)
+- Role-based access: `ADMIN` (global management) and `USER` (therapist)
+- CORS configured per environment
+
+### 🔍 Auditing
+- Spring Data Auditing (`createdBy` / `updatedBy`) on Patient and User entities
+- Custom `audit_log` table for critical actions
 
 ---
 
-## 🛠️ Tech Stack
+## ⚙️ Tech Stack
 
-### Backend (REST API)
-* **Java 21** & **Spring Boot 3.5+**
-* **Spring Security** + JWT (Auth)
-* **Spring Data JPA** (Persistence)
-* **MySQL** (Production) / **H2** (Testing)
-* **Cloudinary** (Cloud file storage)
-* **Spring Events** (Logic decoupling)
-* **Swagger / OpenAPI** (Live documentation)
-* **Maven** (Dependency management)
+### Backend
+| Layer | Technology |
+|---|---|
+| Language | Java 21 |
+| Framework | Spring Boot 3.5.8 |
+| Security | Spring Security + JJWT 0.12.5 |
+| Persistence | Spring Data JPA + MySQL |
+| File Storage | Cloudinary |
+| API Docs | SpringDoc OpenAPI 2 (Swagger UI) |
+| Rate Limiting | Bucket4j |
+| Build | Maven |
+| Tests | JUnit 5 + Mockito + Spring Boot Test |
 
-### Frontend (SPA)
-* **Next.js** (React Framework)
-* **TypeScript**
-* **Tailwind CSS** & **ShadCN UI** (Design System)
-* **Axios** (HTTP Client)
-* **Lucide React** (Iconography)
+### Frontend (separate repository)
+- **Next.js** (React Framework) · **TypeScript** · **Tailwind CSS** & **ShadCN UI** · **Axios**
 
 ### Infrastructure & Quality
-* **Docker & Docker Compose** (Database containerization)
-* **JUnit 5 & Mockito** (Unit and Integration Testing)
-* **SLF4J** (Advanced file and console logging)
+- **Docker & Docker Compose** (database containerization)
+- **SLF4J** (structured console and file logging)
 
 ---
 
 ## 🏗️ Architecture
 
-The project follows **Clean Architecture (Hexagonal Architecture)** principles to ensure scalability and maintainability:
+The project follows **Hexagonal (Clean) Architecture** to ensure scalability and maintainability:
 
-* `domain`: Entities, Business Rules, Repository Interfaces (Pure core, framework-agnostic).
-* `application`: Use Cases (Orchestrating logic), Input/Output DTOs.
-* `infrastructure`: Repository implementations (JPA), External adapters (Cloudinary, Email).
-* `api`: REST Controllers, Exception Handling, Security configuration.
+```
+src/main/java/com/qiromanager/qiromanager_backend/
+├── api/                   # Controllers, DTOs, mappers, exception handlers
+├── application/           # Use cases (one class per use case)
+├── domain/                # Entities, port interfaces, domain exceptions, enums
+├── infrastructure/        # JPA adapters, Cloudinary adapter, bootstrap data
+├── security/              # JWT filter, SecurityConfig, rate limiter
+└── config/                # AuditorAware, app-level beans
+```
+
+Each use case lives in its own class under `application/`, depends only on domain port interfaces, and is injected into controllers. Infrastructure adapters implement those ports — the domain never depends on Spring Data or any framework.
 
 ---
 
-## ⚙️ Installation & Setup
+## 🚀 Getting Started
 
 ### Prerequisites
-* Java 21 JDK
-* Node.js 18+ and npm
-* Docker (optional, for the Database)
 
-### 1. Environment Variables Configuration
-Create a `.env` file in the backend root or configure the variables in your IDE/System:
+- Java 21+
+- Maven 3.9+
+- MySQL 8+ (or Docker for a quick setup)
 
-```properties
-# Database
-DB_USERNAME=root
-DB_PASSWORD=root
-
-# Security (Must be a long 32-byte string)
-JWT_SECRET=your_super_secure_secret_key_base64_etc
-JWT_EXPIRATION=3600000
-
-# Cloudinary (For file uploads)
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-
-```
-
-### 2. Start the Database (Docker)
-
-If you have Docker installed, spin up MySQL quickly:
+### 1. Database with Docker
 
 ```bash
 docker-compose up -d
-
 ```
 
-### 3. Run the Backend
+### 2. Environment Variables
+
+Copy and fill in the required values (see [Environment Variables](#-environment-variables) below):
 
 ```bash
-# From the backend project root
+export DB_USERNAME=root
+export DB_PASSWORD=root
+export JWT_SECRET=your_super_secure_secret_key_at_least_32_chars
+export JWT_EXPIRATION=3600000
+export CLOUDINARY_CLOUD_NAME=your_cloud_name
+export CLOUDINARY_API_KEY=your_api_key
+export CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### 3. Run the backend
+
+```bash
 ./mvnw spring-boot:run
-
 ```
 
-The server will start at: `http://localhost:8080`
+API available at `http://localhost:8080` · Swagger UI at `http://localhost:8080/swagger-ui.html`
 
-### 4. Run the Frontend
+### Profiles
 
-```bash
-# From the frontend folder
-npm install
-npm run dev
-
-```
-
-The web application will start at: `http://localhost:3000`
+| Profile | Database | DDL mode |
+|---|---|---|
+| `dev` (default) | MySQL `localhost:3306/qiromanager` | `update` |
+| `test` | H2 in-memory | `create-drop` |
+| `prod` | MySQL via `PRODUCTION_URL` | `validate` |
 
 ---
 
-## 📚 API Documentation
+## 🔐 Environment Variables
 
-Once the backend is running, you can explore and test all endpoints using Swagger UI:
-
-👉 **[http://localhost:8080/swagger-ui/index.html](https://www.google.com/search?q=http://localhost:8080/swagger-ui/index.html)**
+| Variable | Required | Description |
+|---|---|---|
+| `DB_USERNAME` | ✅ | MySQL username |
+| `DB_PASSWORD` | ✅ | MySQL password |
+| `JWT_SECRET` | ✅ | Signing secret (≥ 32 chars) |
+| `JWT_EXPIRATION` | ✅ | Token TTL in milliseconds (e.g. `3600000`) |
+| `CLOUDINARY_CLOUD_NAME` | ✅ | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | ✅ | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | ✅ | Cloudinary API secret |
+| `CORS_ALLOWED_ORIGINS` | prod only | Comma-separated allowed origins |
 
 ---
 
-## 🧪 Testing
+## 📡 API Reference
 
-The project includes extensive **Integration Test** coverage (`@SpringBootTest`) to ensure the robustness of critical flows (Auth, Patients, Clinical Records).
+All endpoints are prefixed with `/api/v1`. Protected endpoints require:
 
-To run the tests:
+```
+Authorization: Bearer <token>
+```
+
+### 🔑 Auth
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `POST` | `/auth/register` | Public | Register a new user account |
+| `POST` | `/auth/login` | Public | Login and receive a JWT token |
+
+---
+
+### 👤 Users
+
+| Method | Path | Role | Description |
+|---|---|---|---|
+| `GET` | `/users` | ADMIN | List all users. Optional filter: `?role=USER\|ADMIN` |
+| `GET` | `/users/{id}` | ADMIN | Get user by ID |
+| `GET` | `/users/me` | USER, ADMIN | Get own profile |
+| `PUT` | `/users/me` | USER, ADMIN | Update own name and/or password |
+| `PUT` | `/users/{id}` | ADMIN | Update any user (including role) |
+| `PATCH` | `/users/{id}/status` | ADMIN | Activate or deactivate a user |
+
+---
+
+### 🧑‍⚕️ Patients
+
+| Method | Path | Role | Description |
+|---|---|---|---|
+| `POST` | `/patients` | USER, ADMIN | Create a patient (auto-assigned to caller) |
+| `GET` | `/patients` | USER, ADMIN | List active patients (paginated, optional name filter) |
+| `GET` | `/patients/search` | USER, ADMIN | Search patients by full name |
+| `GET` | `/patients/{id}` | USER, ADMIN | Get patient by ID |
+| `PUT` | `/patients/{id}` | USER, ADMIN | Update patient data |
+| `PATCH` | `/patients/{id}/status` | ADMIN | Activate or deactivate a patient |
+| `POST` | `/patients/{id}/assign` | USER, ADMIN | Assign calling therapist to patient |
+| `DELETE` | `/patients/{id}/assign` | USER, ADMIN | Unassign calling therapist from patient |
+
+---
+
+### 🗓️ Treatment Sessions
+
+| Method | Path | Role | Description |
+|---|---|---|---|
+| `POST` | `/patients/{patientId}/sessions` | USER, ADMIN | Log a new session |
+| `GET` | `/patients/{patientId}/sessions` | USER, ADMIN | Get all sessions for a patient |
+| `GET` | `/patients/{patientId}/sessions/{sessionId}` | USER, ADMIN | Get a session by ID |
+| `PUT` | `/patients/{patientId}/sessions/{sessionId}` | USER, ADMIN | Update session date and/or notes |
+| `DELETE` | `/patients/{patientId}/sessions/{sessionId}` | ADMIN | Delete a session |
+
+---
+
+### 📋 Clinical Records
+
+| Method | Path | Role | Description |
+|---|---|---|---|
+| `POST` | `/patients/{patientId}/clinical-records` | USER, ADMIN | Create a record (optional file attachment) |
+| `GET` | `/patients/{patientId}/clinical-records` | USER, ADMIN | List all records for a patient |
+| `GET` | `/patients/{patientId}/clinical-records/{recordId}` | USER, ADMIN | Get a record by ID |
+| `DELETE` | `/patients/{patientId}/clinical-records/{recordId}` | ADMIN | Delete a clinical record |
+
+Supported record types: `ANAMNESIS`, `EVOLUTION`, `MEDICAL_REPORT`, `CONSENT`, `RECOMMENDATION`.
+Maximum file size: **10 MB**.
+
+---
+
+### 📊 Stats
+
+| Method | Path | Role | Description |
+|---|---|---|---|
+| `GET` | `/stats` | USER, ADMIN | Dashboard stats (global for ADMIN, own for USER) |
+
+---
+
+## 👥 Roles & Permissions
+
+| Feature | USER (Therapist) | ADMIN |
+|---|:---:|:---:|
+| View / manage own profile | ✅ | ✅ |
+| Create patients | ✅ | ✅ |
+| View & update patients | ✅ | ✅ |
+| Activate / deactivate patients | ❌ | ✅ |
+| Log / update treatment sessions | ✅ | ✅ |
+| Delete treatment sessions | ❌ | ✅ |
+| Create / view clinical records | ✅ | ✅ |
+| Delete clinical records | ❌ | ✅ |
+| Manage users | ❌ | ✅ |
+| View global stats | ❌ | ✅ |
+
+---
+
+## 🔍 Auditing
+
+The application combines two auditing strategies:
+
+**Spring Data Auditing** — `@CreatedBy` / `@LastModifiedBy` fields on `Patient` and `User` entities automatically record which user created or last modified each record.
+
+**Custom Audit Log** — An `audit_log` table captures critical actions with entity type, entity ID, action, performer, timestamp and details.
+
+| Action | Trigger |
+|---|---|
+| `PATIENT_CREATED` | New patient registered |
+| `PATIENT_UPDATED` | Patient data updated |
+| `PATIENT_ACTIVATED` | Patient re-activated |
+| `PATIENT_DEACTIVATED` | Patient deactivated |
+| `PATIENT_ASSIGNED` | Therapist assigned to patient |
+| `PATIENT_UNASSIGNED` | Therapist removed from patient |
+| `USER_ACTIVATED` | User account activated |
+| `USER_DEACTIVATED` | User account deactivated |
+
+---
+
+## 🧪 Running Tests
 
 ```bash
+# Run all tests
 ./mvnw test
 
+# Run only unit tests (fast, no Spring context)
+./mvnw test -Dtest="*UseCaseTest,*Test"
 ```
+
+Tests use an H2 in-memory database — no external dependencies required.
 
 ---
 
@@ -151,5 +288,5 @@ To run the tests:
 
 Developed by **Adrià Lorente** as an IT Academy – Java Back-End Development Bootcamp Final Project.
 
-* [GitHub](https://github.com/alaw810)
-* [LinkedIn](https://www.linkedin.com/in/adrialorente/)
+- [GitHub](https://github.com/alaw810)
+- [LinkedIn](https://www.linkedin.com/in/adrialorente/)

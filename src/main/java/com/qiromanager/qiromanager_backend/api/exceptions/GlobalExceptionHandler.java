@@ -11,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @RestControllerAdvice
 @Slf4j
@@ -62,6 +63,18 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(TreatmentSessionNotFoundException.class)
+    public ResponseEntity<ApiError> handleTreatmentSessionNotFound(TreatmentSessionNotFoundException ex, HttpServletRequest request) {
+        log.warn("Treatment session not found at {}: {}", request.getRequestURI(), ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ClinicalRecordNotFoundException.class)
+    public ResponseEntity<ApiError> handleClinicalRecordNotFound(ClinicalRecordNotFoundException ex, HttpServletRequest request) {
+        log.warn("Clinical record not found at {}: {}", request.getRequestURI(), ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
 
@@ -80,6 +93,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
         log.warn("Access denied at {}: {}", request.getRequestURI(), ex.getMessage());
         return buildError(HttpStatus.FORBIDDEN, "Access denied", request);
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiError> handleInvalidFile(InvalidFileException ex, HttpServletRequest request) {
+        log.warn("Invalid file upload at {}: {}", request.getRequestURI(), ex.getMessage());
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUploadSize(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        log.warn("File upload too large at {}", request.getRequestURI());
+        return buildError(HttpStatus.BAD_REQUEST, "File size exceeds the maximum allowed limit of 10 MB", request);
     }
 
     @ExceptionHandler(RuntimeException.class)

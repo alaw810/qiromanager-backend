@@ -1,6 +1,8 @@
 package com.qiromanager.qiromanager_backend.infrastructure.patient.jpa;
 
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,11 +14,20 @@ public interface JpaPatientRepository extends JpaRepository<Patient, Long> {
     @Query("SELECT p FROM Patient p WHERE p.active = true")
     List<Patient> findAllActive();
 
+    @Query("SELECT p FROM Patient p WHERE p.active = true")
+    Page<Patient> findAllActive(Pageable pageable);
+
     @Query("SELECT p FROM Patient p WHERE p.active = true AND LOWER(p.fullName) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Patient> searchByFullName(@Param("query") String query);
 
+    @Query("SELECT p FROM Patient p WHERE p.active = true AND LOWER(p.fullName) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<Patient> searchByFullName(@Param("query") String query, Pageable pageable);
+
     @Query("SELECT p FROM Patient p JOIN p.therapists t WHERE p.active = true AND t.id = :therapistId")
     List<Patient> findActiveByTherapistId(@Param("therapistId") Long therapistId);
+
+    @Query("SELECT p FROM Patient p JOIN p.therapists t WHERE p.active = true AND t.id = :therapistId")
+    Page<Patient> findActiveByTherapistId(@Param("therapistId") Long therapistId, Pageable pageable);
 
     long countByActiveTrue();
 

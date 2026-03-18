@@ -13,6 +13,9 @@ spring:
     show-sql: false
 
 app:
+  cors:
+    allowed-origins: http://localhost:5173
+
   jwt:
     secret: test-secret-key-MUST-be-long-enough-123456789
     expiration-millis: 3600000

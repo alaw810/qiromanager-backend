@@ -69,6 +69,10 @@ public class ClinicalRecord {
         return new ClinicalRecord(patient, performedBy, type, content);
     }
 
+    public void forceId(Long id) {
+        this.id = id;
+    }
+
     public void update(String content, RecordType type) {
         boolean changed = false;
 
