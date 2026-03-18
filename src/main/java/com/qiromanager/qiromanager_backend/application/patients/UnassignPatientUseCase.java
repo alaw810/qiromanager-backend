@@ -2,7 +2,9 @@ package com.qiromanager.qiromanager_backend.application.patients;
 
 import com.qiromanager.qiromanager_backend.api.mappers.PatientMapper;
 import com.qiromanager.qiromanager_backend.api.patients.PatientResponse;
+import com.qiromanager.qiromanager_backend.application.audit.AuditService;
 import com.qiromanager.qiromanager_backend.application.users.AuthenticatedUserService;
+import com.qiromanager.qiromanager_backend.domain.audit.AuditAction;
 import com.qiromanager.qiromanager_backend.domain.exceptions.PatientNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.patient.Patient;
 import com.qiromanager.qiromanager_backend.domain.patient.PatientRepository;
@@ -20,6 +22,7 @@ public class UnassignPatientUseCase {
 
     private final PatientRepository patientRepository;
     private final AuthenticatedUserService authenticatedUserService;
+    private final AuditService auditService;
 
     @Transactional
     @CacheEvict(value = "patients", key = "#patientId")
@@ -42,6 +45,8 @@ public class UnassignPatientUseCase {
                 currentUser.getUsername(), patient.getFullName(), patientId);
 
         patient.unassignTherapist(currentUser);
+        auditService.log("Patient", patientId, AuditAction.PATIENT_UNASSIGNED,
+                "Unassigned from therapist: " + currentUser.getUsername());
 
         Patient updated = patientRepository.save(patient);
 

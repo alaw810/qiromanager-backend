@@ -2,6 +2,7 @@ package com.qiromanager.qiromanager_backend.application.users;
 
 import com.qiromanager.qiromanager_backend.api.users.UpdateUserStatusRequest;
 import com.qiromanager.qiromanager_backend.api.users.UserResponse;
+import com.qiromanager.qiromanager_backend.application.audit.AuditService;
 import com.qiromanager.qiromanager_backend.domain.exceptions.UserNotFoundException;
 import com.qiromanager.qiromanager_backend.domain.user.Role;
 import com.qiromanager.qiromanager_backend.domain.user.User;
@@ -24,6 +25,9 @@ class UpdateUserStatusUseCaseTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private UpdateUserStatusUseCase updateUserStatusUseCase;
