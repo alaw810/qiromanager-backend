@@ -1,6 +1,8 @@
 package com.qiromanager.qiromanager_backend.api.clinicalrecords;
 
 import com.qiromanager.qiromanager_backend.application.clinicalrecords.CreateClinicalRecordUseCase;
+import com.qiromanager.qiromanager_backend.application.clinicalrecords.DeleteClinicalRecordUseCase;
+import com.qiromanager.qiromanager_backend.application.clinicalrecords.GetClinicalRecordByIdUseCase;
 import com.qiromanager.qiromanager_backend.application.clinicalrecords.GetPatientClinicalRecordsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,6 +28,8 @@ public class ClinicalRecordController {
 
     private final CreateClinicalRecordUseCase createClinicalRecordUseCase;
     private final GetPatientClinicalRecordsUseCase getPatientClinicalRecordsUseCase;
+    private final GetClinicalRecordByIdUseCase getClinicalRecordByIdUseCase;
+    private final DeleteClinicalRecordUseCase deleteClinicalRecordUseCase;
 
     @Operation(summary = "Create a clinical record for a patient (supports optional file attachment)")
     @ApiResponses({
@@ -63,5 +67,37 @@ public class ClinicalRecordController {
 
         log.debug("Retrieved {} clinical records for Patient ID: {}", records.size(), patientId);
         return ResponseEntity.ok(records);
+    }
+
+    @Operation(summary = "Get a specific clinical record by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Clinical record found"),
+            @ApiResponse(responseCode = "404", description = "Clinical record not found")
+    })
+    @GetMapping("/{patientId}/clinical-records/{recordId}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<ClinicalRecordResponse> getClinicalRecordById(
+            @PathVariable Long patientId,
+            @PathVariable Long recordId
+    ) {
+        log.info("Request received: Fetch Clinical Record ID: {} for Patient ID: {}", recordId, patientId);
+        ClinicalRecordResponse response = getClinicalRecordByIdUseCase.execute(patientId, recordId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Delete a specific clinical record")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Clinical record deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Clinical record not found")
+    })
+    @DeleteMapping("/{patientId}/clinical-records/{recordId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteClinicalRecord(
+            @PathVariable Long patientId,
+            @PathVariable Long recordId
+    ) {
+        log.info("Request received: Delete Clinical Record ID: {} for Patient ID: {}", recordId, patientId);
+        deleteClinicalRecordUseCase.execute(patientId, recordId);
+        return ResponseEntity.noContent().build();
     }
 }
