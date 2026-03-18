@@ -1,12 +1,12 @@
-# Qiromanager Backend
+# 🏥 Qiromanager Backend
 
-Backend of a digital platform designed to replace the paper-based workflow of a massage therapy center. It provides a secure, modular REST API for managing patients, clinical history, file attachments, and treatment sessions.
+A comprehensive digital platform designed to modernize the management of physiotherapy and massage therapy clinics. It provides a secure, modular REST API for managing patients, clinical histories, medical documents, and treatment sessions.
 
 ---
 
 ## 📋 Table of Contents
 
-- [Overview](#-overview)
+- [Key Features](#-key-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
 - [Getting Started](#-getting-started)
@@ -15,26 +15,44 @@ Backend of a digital platform designed to replace the paper-based workflow of a 
 - [Roles & Permissions](#-roles--permissions)
 - [Auditing](#-auditing)
 - [Running Tests](#-running-tests)
+- [Author](#-author)
 
 ---
 
-## 🏥 Overview
+## ✨ Key Features
 
-Qiromanager lets therapists and administrators manage:
+### 👥 Patient Management
+- **Complete CRUD:** Registration, editing, and advanced search of patients with pagination
+- **Smart Assignment:** Therapists assign patients to themselves ("My Patients") for personalized tracking
+- **Status Control:** Activation and deactivation of patient profiles (ADMIN)
 
-- **Users** — therapist accounts with role-based access (ADMIN / USER)
-- **Patients** — full profiles, status management, therapist assignment
-- **Treatment Sessions** — log, update and delete session records per patient
-- **Clinical Records** — typed notes (anamnesis, evolution, reports…) with optional file attachments via Cloudinary
-- **Dashboard Stats** — session counts, patient stats; admins see global data, therapists see their own
-- **Audit Log** — automatic tracking of critical actions (patient/user status changes, assignments, etc.)
+### 🩺 Digital Clinical History
+- **Typed Records:** Anamnesis, evolution notes, medical reports, consent forms, recommendations
+- **File Attachments:** Secure upload of reports, X-rays, and documents integrated with **Cloudinary**
+- **Automation:** Automatic history entries generated via Spring Events when a session is recorded
 
-Authentication is JWT-based. All endpoints except `/api/v1/auth/**` require a valid token.
+### 💆 Treatment Sessions
+- Full CRUD for session records: log, update, and delete interventions with technical notes
+- Automatic calculation of activity statistics per therapist and globally
+
+### 📊 Smart Dashboard
+- **Admin View:** Global metrics — total patients, monthly activity, inactive cases
+- **Therapist View:** Personal metrics — assigned patients, my sessions this month
+
+### 🔐 Security
+- JWT authentication with rate-limited login (Bucket4j)
+- Role-based access: `ADMIN` (global management) and `USER` (therapist)
+- CORS configured per environment
+
+### 🔍 Auditing
+- Spring Data Auditing (`createdBy` / `updatedBy`) on Patient and User entities
+- Custom `audit_log` table for critical actions
 
 ---
 
 ## ⚙️ Tech Stack
 
+### Backend
 | Layer | Technology |
 |---|---|
 | Language | Java 21 |
@@ -47,11 +65,18 @@ Authentication is JWT-based. All endpoints except `/api/v1/auth/**` require a va
 | Build | Maven |
 | Tests | JUnit 5 + Mockito + Spring Boot Test |
 
+### Frontend (separate repository)
+- **Next.js** (React Framework) · **TypeScript** · **Tailwind CSS** & **ShadCN UI** · **Axios**
+
+### Infrastructure & Quality
+- **Docker & Docker Compose** (database containerization)
+- **SLF4J** (structured console and file logging)
+
 ---
 
 ## 🏗️ Architecture
 
-The project follows a **Hexagonal (Clean) Architecture**:
+The project follows **Hexagonal (Clean) Architecture** to ensure scalability and maintainability:
 
 ```
 src/main/java/com/qiromanager/qiromanager_backend/
@@ -73,22 +98,35 @@ Each use case lives in its own class under `application/`, depends only on domai
 
 - Java 21+
 - Maven 3.9+
-- MySQL 8+ running locally (or set `SPRING_PROFILES_ACTIVE=test` for H2 in-memory)
+- MySQL 8+ (or Docker for a quick setup)
 
-### Run locally
+### 1. Database with Docker
 
 ```bash
-git clone https://github.com/alaw810/qiromanager-backend.git
-cd qiromanager-backend
+docker-compose up -d
+```
 
-# Copy and fill in the required environment variables (see below)
-cp .env.example .env   # or export them manually
+### 2. Environment Variables
 
+Copy and fill in the required values (see [Environment Variables](#-environment-variables) below):
+
+```bash
+export DB_USERNAME=root
+export DB_PASSWORD=root
+export JWT_SECRET=your_super_secure_secret_key_at_least_32_chars
+export JWT_EXPIRATION=3600000
+export CLOUDINARY_CLOUD_NAME=your_cloud_name
+export CLOUDINARY_API_KEY=your_api_key
+export CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### 3. Run the backend
+
+```bash
 ./mvnw spring-boot:run
 ```
 
-The API will be available at `http://localhost:8080`.
-Swagger UI: `http://localhost:8080/swagger-ui.html`
+API available at `http://localhost:8080` · Swagger UI at `http://localhost:8080/swagger-ui.html`
 
 ### Profiles
 
@@ -117,7 +155,7 @@ Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ## 📡 API Reference
 
-All endpoints are prefixed with `/api/v1`. Protected endpoints require the header:
+All endpoints are prefixed with `/api/v1`. Protected endpoints require:
 
 ```
 Authorization: Bearer <token>
@@ -176,14 +214,13 @@ Authorization: Bearer <token>
 
 | Method | Path | Role | Description |
 |---|---|---|---|
-| `POST` | `/patients/{patientId}/clinical-records` | USER, ADMIN | Create a clinical record (optional file attachment) |
+| `POST` | `/patients/{patientId}/clinical-records` | USER, ADMIN | Create a record (optional file attachment) |
 | `GET` | `/patients/{patientId}/clinical-records` | USER, ADMIN | List all records for a patient |
 | `GET` | `/patients/{patientId}/clinical-records/{recordId}` | USER, ADMIN | Get a record by ID |
 | `DELETE` | `/patients/{patientId}/clinical-records/{recordId}` | ADMIN | Delete a clinical record |
 
 Supported record types: `ANAMNESIS`, `EVOLUTION`, `MEDICAL_REPORT`, `CONSENT`, `RECOMMENDATION`.
-
-File attachments are uploaded to Cloudinary. Maximum file size: **10 MB**.
+Maximum file size: **10 MB**.
 
 ---
 
@@ -218,7 +255,7 @@ The application combines two auditing strategies:
 
 **Spring Data Auditing** — `@CreatedBy` / `@LastModifiedBy` fields on `Patient` and `User` entities automatically record which user created or last modified each record.
 
-**Custom Audit Log** — An `audit_log` table captures critical actions with entity type, entity ID, action, performer, timestamp and details. Tracked actions:
+**Custom Audit Log** — An `audit_log` table captures critical actions with entity type, entity ID, action, performer, timestamp and details.
 
 | Action | Trigger |
 |---|---|
@@ -243,11 +280,13 @@ The application combines two auditing strategies:
 ./mvnw test -Dtest="*UseCaseTest,*Test"
 ```
 
-Tests use an H2 in-memory database (`application-test.yml`) — no external dependencies required.
-Unit tests use Mockito (`@ExtendWith(MockitoExtension.class)`) and do not load the Spring context.
+Tests use an H2 in-memory database — no external dependencies required.
 
 ---
 
-## 📄 License
+## 👤 Author
 
-Private project — all rights reserved.
+Developed by **Adrià Lorente** as an IT Academy – Java Back-End Development Bootcamp Final Project.
+
+- [GitHub](https://github.com/alaw810)
+- [LinkedIn](https://www.linkedin.com/in/adrialorente/)
