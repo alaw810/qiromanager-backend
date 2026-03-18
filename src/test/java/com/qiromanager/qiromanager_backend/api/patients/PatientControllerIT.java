@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.PageImpl;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -68,11 +70,11 @@ class PatientControllerIT {
     @WithMockUser(username = "therapist", roles = {"USER"})
     void getAllPatients_ShouldReturnList() throws Exception {
         PatientResponse p1 = PatientResponse.builder().id(1L).fullName("P1").build();
-        when(listPatientsUseCase.execute(any())).thenReturn(List.of(p1));
+        when(listPatientsUseCase.execute(any(), any())).thenReturn(new PageImpl<>(List.of(p1)));
 
         mockMvc.perform(get("/api/v1/patients"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].fullName").value("P1"));
+                .andExpect(jsonPath("$.content[0].fullName").value("P1"));
     }
 
     @Test
@@ -129,12 +131,12 @@ class PatientControllerIT {
     void searchPatients_ShouldReturnResults() throws Exception {
         PatientResponse p1 = PatientResponse.builder().id(1L).fullName("John Doe").build();
 
-        when(searchPatientsUseCase.execute("John")).thenReturn(List.of(p1));
+        when(searchPatientsUseCase.execute(eq("John"), any())).thenReturn(new PageImpl<>(List.of(p1)));
 
         mockMvc.perform(get("/api/v1/patients/search")
                         .param("query", "John"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].fullName").value("John Doe"));
+                .andExpect(jsonPath("$.content[0].fullName").value("John Doe"));
     }
 
     @Test
